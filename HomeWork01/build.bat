@@ -1,1 +1,0 @@
-cmd /K mvn clean compile assembly:assembly
