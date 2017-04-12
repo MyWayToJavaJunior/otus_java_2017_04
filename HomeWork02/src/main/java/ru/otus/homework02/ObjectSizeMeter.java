@@ -45,8 +45,9 @@ public class ObjectSizeMeter {
 
     private long onePass(Supplier<Object> so) throws Exception{
         long memBefore, memAfter;
-        memBefore = memoryUsage();
         Object[] arr = new Object[objArrLen];
+
+        memBefore = memoryUsage();
         for (int j = 0; j < objArrLen; j++) {
             arr[j] = so.get();
         }
