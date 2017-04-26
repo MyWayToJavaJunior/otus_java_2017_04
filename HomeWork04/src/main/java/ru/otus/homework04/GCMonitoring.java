@@ -49,7 +49,8 @@ public class GCMonitoring {
                     long curTimeMills = System.currentTimeMillis();
                     long timeElapsedMills = curTimeMills - stat.getPrevNotificationTimeMills();
 
-                    float totalDuration = (curTimeMills - startTimeMills) / 60_000f;
+                    monitoringDuration = curTimeMills - startTimeMills;
+                    float totalDuration = (monitoringDuration) / 60_000f;
                     float timeElapsedMins = timeElapsedMills / 60_000f;
                     if (timeElapsedMills > 60_000) {
                         StringBuilder msg = new StringBuilder();
@@ -113,8 +114,10 @@ public class GCMonitoring {
 
     public void saveSatToFile(String fileName) {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            String line = String.format("Total monitoring duration: %s min \n", String.format("%.2f", monitoringDuration / 60_000f));
+                    writer.write(line);
             for (Map.Entry<String, GCStat> e : gcStatMap.entrySet()) {
-                String line = String.format("GCName = %s, %s \n", e.getKey(), e.getValue().toString());
+                line = String.format("GCName = %s, %s \n", e.getKey(), e.getValue().toString());
                 writer.write(line);
             }
         } catch (IOException e) {
