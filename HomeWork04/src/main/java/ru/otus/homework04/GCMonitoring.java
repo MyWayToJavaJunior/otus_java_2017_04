@@ -3,6 +3,7 @@ package ru.otus.homework04;
 import com.sun.management.GarbageCollectionNotificationInfo;
 
 import javax.management.ListenerNotFoundException;
+import javax.management.Notification;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
 import javax.management.openmbean.CompositeData;
@@ -37,60 +38,7 @@ public class GCMonitoring {
                 gcStatMap.put(gc.getName(), new GCStat());
             }
 
-            NotificationListener listener = (notification, handback) -> {
-                if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
-                    GarbageCollectionNotificationInfo info = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
-
-                    String gcName = info.getGcName();
-                    long duration = info.getGcInfo().getDuration();
-                    GCStat stat = gcStatMap.get(gcName);
-                    stat.add(duration);
-
-                    long curTimeMills = System.currentTimeMillis();
-                    long timeElapsedMills = curTimeMills - stat.getPrevNotificationTimeMills();
-
-                    monitoringDuration = curTimeMills - startTimeMills;
-                    float totalDuration = (monitoringDuration) / 60_000f;
-                    float timeElapsedMins = timeElapsedMills / 60_000f;
-                    if (timeElapsedMills > 60_000) {
-                        StringBuilder msg = new StringBuilder();
-                        msg.append("GCName: ").append(gcName).append("\n")
-                                .append("   , Total monitoring duration: ")
-                                .append(String.format("%.2f", totalDuration)).append(" min").append("\n")
-
-                                .append("   , Total number of trips: ")
-                                .append(stat.getTotalNumberOfTrips()).append("\n")
-
-                                .append("   , Total GC duration: ")
-                                .append(stat.getTotalDuration()).append(" ms").append("\n")
-
-                                .append("   , Avg GC duration: ")
-                                .append(stat.getAvgDuration()).append(" ms").append("\n")
-
-                                .append("   , Min GC duration: ")
-                                .append(stat.getMinDuration()).append(" ms").append("\n")
-
-                                .append("   , Max GC duration: ")
-                                .append(stat.getMaxDuration()).append(" ms").append("\n")
-
-                                .append("   , Number of trips per per last ")
-                                .append(String.format("%.2f", timeElapsedMins)).append(" min: ").append(stat.getSumNumberOfTripsPerMinute()).append("\n")
-
-                                .append("   , GC duration per last ")
-                                .append(String.format("%.2f", timeElapsedMins)).append(" min: ").append(stat.getSumDurationPerMinute()).append(" ms");
-
-                        System.out.println(msg.toString());
-
-                        stat.setPrevNotificationTimeMills(curTimeMills);
-                        stat.setSumDurationPerMinute(0);
-                        stat.setSumNumberOfTripsPerMinute(0);
-                    }
-
-                    stat.incSumDurationPerMinute(duration);
-                    stat.incSumNumberOfTripsPerMinute();
-
-                }
-            };
+            NotificationListener listener = new GCMonitoringNotificationListener();
             emitter.addNotificationListener(listener, null, null);
             listeners.add(listener);
             emitters.add(emitter);
@@ -122,6 +70,68 @@ public class GCMonitoring {
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
+        }
+    }
+
+    private class GCMonitoringNotificationListener implements NotificationListener {
+        private void logNotification(String gcName, float totalDuration, float timeElapsedMins, GCStat stat) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("GCName: ").append(gcName).append("\n")
+                    .append("   , Total monitoring duration: ")
+                    .append(String.format("%.2f", totalDuration)).append(" min").append("\n")
+
+                    .append("   , Total number of trips: ")
+                    .append(stat.getTotalNumberOfTrips()).append("\n")
+
+                    .append("   , Total GC duration: ")
+                    .append(stat.getTotalDuration()).append(" ms").append("\n")
+
+                    .append("   , Avg GC duration: ")
+                    .append(stat.getAvgDuration()).append(" ms").append("\n")
+
+                    .append("   , Min GC duration: ")
+                    .append(stat.getMinDuration()).append(" ms").append("\n")
+
+                    .append("   , Max GC duration: ")
+                    .append(stat.getMaxDuration()).append(" ms").append("\n")
+
+                    .append("   , Number of trips per per last ")
+                    .append(String.format("%.2f", timeElapsedMins)).append(" min: ").append(stat.getSumNumberOfTripsPerMinute()).append("\n")
+
+                    .append("   , GC duration per last ")
+                    .append(String.format("%.2f", timeElapsedMins)).append(" min: ").append(stat.getSumDurationPerMinute()).append(" ms");
+
+            System.out.println(msg.toString());
+
+        }
+
+        @Override
+        public void handleNotification(Notification notification, Object handback) {
+            if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
+                GarbageCollectionNotificationInfo info = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
+
+                String gcName = info.getGcName();
+                long duration = info.getGcInfo().getDuration();
+                GCStat stat = gcStatMap.get(gcName);
+                stat.add(duration);
+
+                long curTimeMills = System.currentTimeMillis();
+                long timeElapsedMills = curTimeMills - stat.getPrevNotificationTimeMills();
+
+                monitoringDuration = curTimeMills - startTimeMills;
+                float totalDuration = (monitoringDuration) / 60_000f;
+                float timeElapsedMins = timeElapsedMills / 60_000f;
+                if (timeElapsedMills > 60_000) {
+                    logNotification(gcName, totalDuration, timeElapsedMins, stat);
+                    stat.setPrevNotificationTimeMills(curTimeMills);
+                    stat.setSumDurationPerMinute(0);
+                    stat.setSumNumberOfTripsPerMinute(0);
+                }
+
+                stat.incSumDurationPerMinute(duration);
+                stat.incSumNumberOfTripsPerMinute();
+
+            }
         }
     }
 
