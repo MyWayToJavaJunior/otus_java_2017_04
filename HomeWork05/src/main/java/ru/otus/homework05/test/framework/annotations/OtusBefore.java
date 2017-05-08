@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(value= RetentionPolicy.RUNTIME)
 
 public @interface OtusBefore {
+    int order() default 0;
 }
