@@ -2,6 +2,7 @@ package ru.otus.homework07;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.otus.homework07.ATM.ATM;
 
 import java.util.Arrays;
 

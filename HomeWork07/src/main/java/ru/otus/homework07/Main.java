@@ -1,5 +1,9 @@
 package ru.otus.homework07;
 
+import ru.otus.homework07.ATM.ATM;
+import ru.otus.homework07.ATM.ATMBase;
+import ru.otus.homework07.ATM.ATMDepartment;
+
 public class Main {
 
     private static void printAvaivableCashDetails(ATMDepartment department) {

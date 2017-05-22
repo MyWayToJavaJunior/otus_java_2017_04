@@ -1,4 +1,4 @@
-package ru.otus.homework07;
+package ru.otus.homework07.ATM;
 
 public interface ATMBase {
     int getAvaivableCash();

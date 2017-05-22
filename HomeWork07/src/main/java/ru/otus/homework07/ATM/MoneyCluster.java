@@ -1,4 +1,4 @@
-package ru.otus.homework07;
+package ru.otus.homework07.ATM;
 
 public class MoneyCluster implements Comparable<MoneyCluster> {
     private int denomination;
@@ -7,7 +7,7 @@ public class MoneyCluster implements Comparable<MoneyCluster> {
     private MoneyCluster prevCluster;
     private MoneyCluster nextCluster;
 
-    public MoneyCluster(int denomination) {
+    MoneyCluster(int denomination) {
         this.denomination = denomination;
         amount = 0;
     }
@@ -17,7 +17,7 @@ public class MoneyCluster implements Comparable<MoneyCluster> {
         this.amount = amount;
     }
 
-    public MoneyCluster(MoneyCluster cluster) {
+    MoneyCluster(MoneyCluster cluster) {
         this.denomination = cluster.getDenomination();
         this.amount = cluster.getAmount();
     }
@@ -31,15 +31,15 @@ public class MoneyCluster implements Comparable<MoneyCluster> {
     }
 
 
-    public void setPrevCluster(MoneyCluster prevCluster) {
+    void setPrevCluster(MoneyCluster prevCluster) {
         this.prevCluster = prevCluster;
     }
 
-    public void setNextCluster(MoneyCluster nextCluster) {
+    void setNextCluster(MoneyCluster nextCluster) {
         this.nextCluster = nextCluster;
     }
 
-    public boolean setAmount(int denomination, int amount) {
+    boolean setAmount(int denomination, int amount) {
         if (this.denomination == denomination) {
             this.amount = amount;
             return true;

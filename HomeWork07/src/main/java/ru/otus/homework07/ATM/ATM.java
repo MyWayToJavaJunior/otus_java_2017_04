@@ -1,4 +1,4 @@
-package ru.otus.homework07;
+package ru.otus.homework07.ATM;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ public class ATM implements ATMBase{
 
     private int[] denominationsSupported;
     private List<MoneyCluster> moneyClusters;
-    private List<MoneyCluster> initialState;
+    private ATMMemento initialState;
 
 
     public ATM(int... denominationsSupported) {
@@ -25,7 +25,7 @@ public class ATM implements ATMBase{
     }
 
     private void linkMoneyClusters() {
-        Collections.sort(moneyClusters, Collections.reverseOrder());
+        moneyClusters.sort(Collections.reverseOrder());
 
         MoneyCluster prevCluster = null;
         for (MoneyCluster cluster : moneyClusters) {
@@ -45,18 +45,15 @@ public class ATM implements ATMBase{
     }
 
     public boolean deposit(int denomination, int amount) {
-        if (moneyClusters == null || moneyClusters.size() == 0) return false;
-        return moneyClusters.get(0).deposit(denomination, amount);
+        return !(moneyClusters == null || moneyClusters.size() == 0) && moneyClusters.get(0).deposit(denomination, amount);
     }
 
     public boolean load(int denomination, int amount) {
-        if (moneyClusters == null || moneyClusters.size() == 0) return false;
-        return moneyClusters.get(0).setAmount(denomination, amount);
+        return !(moneyClusters == null || moneyClusters.size() == 0) && moneyClusters.get(0).setAmount(denomination, amount);
     }
 
     public boolean withdraw(int cash) {
-        if (moneyClusters == null || moneyClusters.size() == 0) return false;
-        return moneyClusters.get(0).withdraw(cash);
+        return !(moneyClusters == null || moneyClusters.size() == 0) && moneyClusters.get(0).withdraw(cash);
     }
 
     public int getAvaivableCash() {
@@ -64,14 +61,21 @@ public class ATM implements ATMBase{
         return moneyClusters.get(0).getAvaivableCash();
     }
 
+    private ATMMemento saveToMemento() {
+        return new ATMMemento(moneyClusters);
+    }
+
+    private void setMemento(ATMMemento memento) {
+        moneyClusters.clear();
+        memento.getState().forEach(c -> this.moneyClusters.add(new MoneyCluster(c)));
+        linkMoneyClusters();
+    }
+
     public void saveInitialState() {
-        initialState = new ArrayList<>();
-        moneyClusters.forEach(c -> initialState.add(new MoneyCluster(c)));
+        initialState = saveToMemento();
     }
 
     public void restoreFromInitialState() {
-        moneyClusters.clear();
-        initialState.forEach(c -> this.moneyClusters.add(new MoneyCluster(c)));
-        linkMoneyClusters();
+        setMemento(initialState);
     }
 }

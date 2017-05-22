@@ -1,6 +1,7 @@
-package ru.otus.homework07;
+package ru.otus.homework07.ATM;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ATMDepartment implements ATMBase {
@@ -36,9 +37,7 @@ public class ATMDepartment implements ATMBase {
     }
 
     public ATMDepartment(ATM... atms) {
-        for (ATM atm : atms) {
-            this.atms.add(atm);
-        }
+        Collections.addAll(this.atms, atms);
     }
 
     public List<ATM> getAtms() {

@@ -2,6 +2,8 @@ package ru.otus.homework07;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.otus.homework07.ATM.ATM;
+import ru.otus.homework07.ATM.ATMDepartment;
 
 public class ATMDepartmentTest {
 
