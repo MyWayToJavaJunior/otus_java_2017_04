@@ -2,7 +2,8 @@ package ru.otus.homework07;
 
 import java.util.*;
 
-public class ATM {
+public class ATM implements ATMBase{
+
     private int[] denominationsSupported;
     private List<MoneyCluster> moneyClusters;
     private List<MoneyCluster> initialState;
@@ -37,6 +38,10 @@ public class ATM {
 
             prevCluster = cluster;
         }
+    }
+
+    public int[] getDenominationsSupported() {
+        return denominationsSupported;
     }
 
     public boolean deposit(int denomination, int amount) {

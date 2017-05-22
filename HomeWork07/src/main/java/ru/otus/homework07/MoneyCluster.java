@@ -66,7 +66,7 @@ public class MoneyCluster implements Comparable<MoneyCluster> {
 
         if (denomination > 0 && amount > 0) {
             int cnt = cash / denomination;
-            cnt = (cnt >= amount || cnt == 0)? cnt: amount;
+            cnt = (cnt <= amount || cnt == 0)? cnt: amount;
 
             if (cnt > 0) {
                 cash -= cnt * denomination;
