@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ATMDepartment implements ATMBase {
-    private final List<ATM> atms = new ArrayList<>();;
+    private final List<ATM> atms = new ArrayList<>();
 
     public ATMDepartment() {
         atms.add(new ATM(50, 100, 500, 1000));
