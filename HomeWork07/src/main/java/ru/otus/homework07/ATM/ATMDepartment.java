@@ -8,30 +8,20 @@ public class ATMDepartment implements ATMBase {
     private final List<ATM> atms = new ArrayList<>();
 
     public ATMDepartment() {
-        atms.add(new ATM(50, 100, 500, 1000));
-        atms.add(new ATM(10, 50, 100, 500, 1000));
-        atms.add(new ATM(10, 50, 100, 500, 5000));
+        final int[] defaultDenominationsForFirstATM = {50, 100, 500, 1000};
+        final int[] defaultDenominationsForSecondATM = {10, 50, 100, 500, 1000};
+        final int[] defaultDenominationsForThirdATM = {10, 50, 100, 500, 5000};
+        final int defaultDenominationLoad = 100;
 
-        int atmNum = 0;
-        atms.get(atmNum).load(50, 100);
-        atms.get(atmNum).load(100, 50);
-        atms.get(atmNum).load(500, 25);
-        atms.get(atmNum).load(1000, 10);
+        atms.add(new ATM(defaultDenominationsForFirstATM));
+        atms.add(new ATM(defaultDenominationsForSecondATM));
+        atms.add(new ATM(defaultDenominationsForThirdATM));
 
-        atmNum++;
-        atms.get(atmNum).load(10, 300);
-        atms.get(atmNum).load(50, 150);
-        atms.get(atmNum).load(100, 75);
-        atms.get(atmNum).load(500, 37);
-        atms.get(atmNum).load(1000, 18);
-
-        atmNum++;
-        atms.get(atmNum).load(10, 400);
-        atms.get(atmNum).load(50, 200);
-        atms.get(atmNum).load(100, 100);
-        atms.get(atmNum).load(500, 50);
-        atms.get(atmNum).load(1000, 25);
-        atms.get(atmNum).load(5000, 12);
+        for (ATM atm : atms) {
+            for (int denomination : atm.getDenominationsSupported()) {
+                atm.load(denomination, defaultDenominationLoad);
+            }
+        }
 
         saveInitialState();
     }
@@ -62,4 +52,22 @@ public class ATMDepartment implements ATMBase {
     public void saveInitialState() {
         atms.forEach(ATM::saveInitialState);
     }
+
+
+    public void printAvaivableCashDetails() {
+        int i = 1;
+        for (ATM atm : atms) {
+            System.out.println(String.format("Доступные средства в АТМ%s - %s", i++, atm.getAvaivableCash()));
+        }
+        System.out.println(String.format("Доступные средства во всех ATM -  %s", getAvaivableCash()));
+    }
+
+    public void printWithdrawProcess(int atmNum, int cash) {
+        if (atms.size() <= atmNum) return;
+
+        System.out.format("Снятие %s с ATM %s...", cash, atmNum + 1);
+        boolean res = atms.get(atmNum).withdraw(cash);
+        System.out.println(res? "успех": "провал");
+    }
+
 }
