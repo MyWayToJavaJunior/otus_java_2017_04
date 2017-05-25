@@ -6,12 +6,18 @@ import java.util.List;
 
 public class ATMDepartment implements ATMBase {
     private final List<ATM> atms = new ArrayList<>();
+    private final String MSG_ATM_AVAIVABLE_CASH = "Доступные средства в АТМ%s - %s";
+    private final String MSG_ALL_ATMS_AVAIVABLE_CASH = "Доступные средства во всех ATM -  %s";
+    private final String MSG_WITHDRAW = "Снятие %s с ATM %s...";
+    private final String RES_SUCCESS = "успех";
+    private final String RES_FAIL = "провал";
+
+    private final int[] defaultDenominationsForFirstATM = {50, 100, 500, 1000};
+    private final int[] defaultDenominationsForSecondATM = {10, 50, 100, 500, 1000};
+    private final int[] defaultDenominationsForThirdATM = {10, 50, 100, 500, 5000};
+    private final int defaultDenominationLoad = 100;
 
     public ATMDepartment() {
-        final int[] defaultDenominationsForFirstATM = {50, 100, 500, 1000};
-        final int[] defaultDenominationsForSecondATM = {10, 50, 100, 500, 1000};
-        final int[] defaultDenominationsForThirdATM = {10, 50, 100, 500, 5000};
-        final int defaultDenominationLoad = 100;
 
         atms.add(new ATM(defaultDenominationsForFirstATM));
         atms.add(new ATM(defaultDenominationsForSecondATM));
@@ -57,17 +63,17 @@ public class ATMDepartment implements ATMBase {
     public void printAvaivableCashDetails() {
         int i = 1;
         for (ATM atm : atms) {
-            System.out.println(String.format("Доступные средства в АТМ%s - %s", i++, atm.getAvaivableCash()));
+            System.out.println(String.format(MSG_ATM_AVAIVABLE_CASH, i++, atm.getAvaivableCash()));
         }
-        System.out.println(String.format("Доступные средства во всех ATM -  %s", getAvaivableCash()));
+        System.out.println(String.format(MSG_ALL_ATMS_AVAIVABLE_CASH, getAvaivableCash()));
     }
 
     public void printWithdrawProcess(int atmNum, int cash) {
         if (atms.size() <= atmNum) return;
 
-        System.out.format("Снятие %s с ATM %s...", cash, atmNum + 1);
+        System.out.format(MSG_WITHDRAW, cash, atmNum + 1);
         boolean res = atms.get(atmNum).withdraw(cash);
-        System.out.println(res? "успех": "провал");
+        System.out.println(res? RES_SUCCESS: RES_FAIL);
     }
 
 }
