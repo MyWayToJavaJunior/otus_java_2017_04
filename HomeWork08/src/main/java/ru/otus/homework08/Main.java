@@ -2,26 +2,24 @@ package ru.otus.homework08;
 
 
 import org.json.simple.JSONObject;
-import ru.otus.homework08.json.helper.JSONHelper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ru.otus.homework08.json.helper.JSONSerializer;
+import ru.otus.homework08.working.classes.SerializebleObject;
 
 public class Main {
 
 
     public static void main(String[] args) {
 
+        JSONSerializer serializer = new JSONSerializer();
+
         SerializebleObject object = new SerializebleObject();
         object.fillPrivateCollectionsByFakeData();
 
-        JSONObject jsonObject = JSONHelper.objectToJSON(object);
+        JSONObject jsonObject = serializer.objectToJSON(object);
         //System.out.println(jsonObject.toJSONString());
 
-        object = new SerializebleObject(0);
-        System.out.println(object);
-        JSONHelper.JSONToObject(jsonObject, object);
-        System.out.println(object);
+        SerializebleObject object2 = new SerializebleObject();
+        serializer.JSONToObject(jsonObject, object2);
+        System.out.println(object.strCompare(object2, true));
     }
 }
