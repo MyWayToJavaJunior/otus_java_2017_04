@@ -4,50 +4,33 @@ package ru.otus.homework08.json.serializer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.util.*;
 
 /*
 * Класс гарантировано не работает с:
-*   простыми объектами (т.е. objectToJSON примитивный тип, обертку, строку или коллекцию ниего хорошего не произойдет )
+*   простыми объектами (т.е. serializeObjectToJSON примитивный тип, обертку, строку или коллекцию ниего хорошего не произойдет )
 *   объектами содержащими поля с типом "внутренний класс"
 *   объектами содержащими поля типа Map, у которых тип ключа не примитивный тип, не обертка и не строка
 *   объектами содержащими поля с типами "коллекция коллекций" и "карты карт"
 */
 
-public class JSONSerializer {
+public class JSONSerializer implements IJSONSerializer {
     private static final String MAP_ELEM_KEY_HDR = "key";
     private static final String MAP_ELEM_VALUE_HDR = "val";
-
-    private FieldType getFieldType(Class fieldClass) {
-        if (fieldClass.isPrimitive() || Number.class.isAssignableFrom(fieldClass) || fieldClass.equals(String.class)) {
-            return FieldType.Simple;
-        }else if (fieldClass.isArray()){
-            return FieldType.Array;
-        }else if (Collection.class.isAssignableFrom(fieldClass)) {
-            return FieldType.Collection;
-        }else if (Map.class.isAssignableFrom(fieldClass)) {
-            return FieldType.Map;
-        }else {
-            return FieldType.Unknow;
-        }
-    }
 
     private JSONArray arrayToJSONArray(Object array) {
         JSONArray jsonArray = new JSONArray();
         int len = Array.getLength(array);
         for (int i = 0; i < len; i++) {
             Object arrayElem = Array.get(array, i);
-            FieldType elemType = getFieldType(arrayElem.getClass());
+            FieldType elemType = FieldType.getForClass(arrayElem.getClass());
 
             if (elemType == FieldType.Simple){
                 jsonArray.add(arrayElem.toString());
             }
             else {
-                jsonArray.add(objectToJSON(arrayElem));
+                jsonArray.add(serializeObjectToJSON(arrayElem));
             }
         }
         return jsonArray;
@@ -58,9 +41,9 @@ public class JSONSerializer {
 
         Map<Object, Object> m = (Map) map;
         for (Map.Entry<Object, Object> mapElem : m.entrySet()) {
-            if (getFieldType(mapElem.getKey().getClass()) != FieldType.Simple) continue;
+            if (FieldType.getForClass(mapElem.getKey().getClass()) != FieldType.Simple) continue;
 
-            FieldType elemType = getFieldType(mapElem.getValue().getClass());
+            FieldType elemType = FieldType.getForClass(mapElem.getValue().getClass());
             JSONObject jsonMapElem = new JSONObject();
 
             jsonMapElem.put(MAP_ELEM_KEY_HDR, mapElem.getKey().toString());
@@ -68,7 +51,7 @@ public class JSONSerializer {
                 jsonMapElem.put(MAP_ELEM_VALUE_HDR, mapElem.getValue().toString());
             }
             else {
-                jsonMapElem.put(MAP_ELEM_VALUE_HDR, objectToJSON(mapElem.getValue()));
+                jsonMapElem.put(MAP_ELEM_VALUE_HDR, serializeObjectToJSON(mapElem.getValue()));
             }
             jsonArray.add(jsonMapElem);
         }
@@ -82,7 +65,7 @@ public class JSONSerializer {
             return;
         }
 
-        FieldType fieldType = getFieldType(field.getClass());
+        FieldType fieldType = FieldType.getForClass(field.getClass());
         if (fieldType == FieldType.Simple) {
             json.put(fieldName, field.toString());
         }
@@ -96,11 +79,11 @@ public class JSONSerializer {
             json.put(fieldName, mapToJSONArray(field));
         }
         else {
-            json.put(fieldName, objectToJSON(field));
+            json.put(fieldName, serializeObjectToJSON(field));
         }
     }
 
-    public JSONObject objectToJSON(Object object) {
+    public JSONObject serializeObjectToJSON(Object object) {
         JSONObject json = new JSONObject();
 
         Field[] fields = object.getClass().getDeclaredFields();
@@ -119,70 +102,57 @@ public class JSONSerializer {
     }
 
 
-    private Object JSONArrayToObject(Class arrayElemTypeClass, JSONArray jsonArray) {
+    private Object JSONArrayToObjectArray(Class arrayElemTypeClass, JSONArray jsonArray) {
+        FieldType arrayElemFieldType = FieldType.getForClass(arrayElemTypeClass);
         Object array = Array.newInstance(arrayElemTypeClass, jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
-            FieldType arrayElemFieldType = getFieldType(arrayElemTypeClass);
             if (arrayElemFieldType == FieldType.Simple) {
                 Array.set(array, i, TypeFactory.getSimpleTypeValueFromString(arrayElemTypeClass, jsonArray.get(i).toString()));
             }
             else {
-                try {
-                    Object elem = arrayElemTypeClass.newInstance();
-                    JSONToObject((JSONObject) jsonArray.get(i), elem);
-                    Array.set(array, i, elem);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    System.err.println(e.getMessage());
-                }
+                Object elem = deserializeJSONToObject((JSONObject) jsonArray.get(i), arrayElemTypeClass);
+                Array.set(array, i, elem);
             }
         }
         return array;
     }
 
     private Collection JSONArrayToCollection(Field field, JSONArray jsonArray) {
-        Class<?> arrayElemTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-
-        Object array = JSONArrayToObject(arrayElemTypeClass, jsonArray);
-        Collection collection = null;
-        try {
-            collection = TypeFactory.createCollection(field.getType());
-
-            for (int i = 0; i < Array.getLength(array); i++) {
-                collection.add(Array.get(array, i));
-            }
-        } catch (IllegalAccessException | InstantiationException e) {
-            System.err.println(e.getMessage());
-        }
-
-        return collection;
+        Object array = JSONArrayToObjectArray(ReflectionHelper.getFieldGenericType(field, 0), jsonArray);
+        return TypeFactory.createCollection(field.getType(), ((Object[]) array));
     }
 
     private Map JSONArrayToMap(Field field, JSONArray jsonArray) throws IllegalAccessException, InstantiationException {
-        Class<?> mapKeyTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-        Class<?> mapValueTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
+        Class<?> mapKeyTypeClass = ReflectionHelper.getFieldGenericType(field, 0);
+        Class<?> mapValueTypeClass = ReflectionHelper.getFieldGenericType(field, 1);
 
         HashMap<Object, Object> map = new HashMap<>();
-        if (getFieldType(mapKeyTypeClass) == FieldType.Simple) {
+        if (FieldType.getForClass(mapKeyTypeClass) == FieldType.Simple) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonArrayElem = (JSONObject) jsonArray.get(i);
                 Object mapKey = TypeFactory.getSimpleTypeValueFromString(mapKeyTypeClass, jsonArrayElem.get(MAP_ELEM_KEY_HDR).toString());
                 Object mapValue = jsonArrayElem.get(MAP_ELEM_VALUE_HDR);
 
-                if (getFieldType(mapValueTypeClass) == FieldType.Simple) {
+                if (FieldType.getForClass(mapValueTypeClass) == FieldType.Simple) {
                     map.put(mapKey, TypeFactory.getSimpleTypeValueFromString(mapValueTypeClass, mapValue.toString()));
                 }
                 else {
-                    Object obj = mapValueTypeClass.newInstance();
-                    JSONToObject((JSONObject) mapValue, obj);
+                    Object obj = deserializeJSONToObject((JSONObject) mapValue, mapValueTypeClass);
                     map.put(mapKey, obj);
                 }
             }
-
         }
         return map;
     }
 
-    public void JSONToObject(JSONObject json, Object object) {
+    public Object deserializeJSONToObject(JSONObject json, Class objectClass) {
+        Object object = null;
+        try {
+            object = objectClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            System.err.println(e.getMessage());
+        }
+        if (object == null) return null;
 
         for (Object key : json.keySet()) {
             String fieldName = key.toString();
@@ -192,7 +162,7 @@ public class JSONSerializer {
                 field.setAccessible(true);
 
                 Class fieldTypeClass = field.getType();
-                FieldType fieldType = getFieldType(fieldTypeClass);
+                FieldType fieldType = FieldType.getForClass(fieldTypeClass);
                 Object value = json.get(key);
 
                 if (value == null) {
@@ -203,7 +173,7 @@ public class JSONSerializer {
                 }
                 else if (value.getClass() == JSONArray.class) {
                     if (fieldType == FieldType.Array) {
-                        field.set(object, JSONArrayToObject(fieldTypeClass.getComponentType(), (JSONArray) value));
+                        field.set(object, JSONArrayToObjectArray(fieldTypeClass.getComponentType(), (JSONArray) value));
                     }
                     else if (fieldType == FieldType.Collection) {
                         field.set(object, JSONArrayToCollection(field, (JSONArray)value));
@@ -214,8 +184,7 @@ public class JSONSerializer {
                     }
                 }
                 else if (fieldType == FieldType.Unknow) {
-                    Object obj = fieldTypeClass.newInstance();
-                    JSONToObject((JSONObject) value, obj);
+                    Object obj = deserializeJSONToObject((JSONObject) value, fieldTypeClass);
                     field.set(object, obj);
                 }
             } catch (NoSuchFieldException | IllegalAccessException | InstantiationException e) {
@@ -223,6 +192,7 @@ public class JSONSerializer {
             }
 
         }
+        return object;
     }
 
 }

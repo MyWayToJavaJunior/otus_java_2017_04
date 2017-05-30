@@ -1,5 +1,6 @@
 package ru.otus.homework08.json.serializer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class TypeFactory {
@@ -35,8 +36,8 @@ public class TypeFactory {
     }
 
 
-    static Collection createCollection(Class collectionTypeClass) throws IllegalAccessException, InstantiationException {
-        Collection collection;
+    static Collection createCollection(Class collectionTypeClass, Object[] elems) {
+        Collection collection = null;
 
         if (List.class == collectionTypeClass) {
             collection = new ArrayList();
@@ -48,8 +49,14 @@ public class TypeFactory {
             collection = new PriorityQueue();
         }
         else {
-            collection = (Collection) collectionTypeClass.newInstance();
+            try {
+//                collection = (Collection) collectionTypeClass.getConstructor(Collection.class).newInstance(elems);
+                collection = (Collection) collectionTypeClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                System.err.println(e.getMessage());
+            }
         }
+        if (collection != null) Collections.addAll(collection, elems);
         return collection;
     }
 
