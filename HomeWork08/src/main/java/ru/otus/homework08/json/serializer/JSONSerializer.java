@@ -1,4 +1,4 @@
-package ru.otus.homework08.json.helper;
+package ru.otus.homework08.json.serializer;
 
 
 import org.json.simple.JSONArray;
@@ -9,6 +9,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+
+/*
+* Класс гарантировано не работает с:
+*   простыми объектами (т.е. objectToJSON примитивный тип, обертку, строку или коллекцию ниего хорошего не произойдет )
+*   объектами содержащими поля с типом "внутренний класс"
+*   объектами содержащими поля типа Map, у которых тип ключа не примитивный тип, не обертка и не строка
+*   объектами содержащими поля с типами "коллекция коллекций" и "карты карт"
+*/
 
 public class JSONSerializer {
     private static final String MAP_ELEM_KEY_HDR = "key";
@@ -135,10 +143,15 @@ public class JSONSerializer {
         Class<?> arrayElemTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
 
         Object array = JSONArrayToObject(arrayElemTypeClass, jsonArray);
-        Collection collection = TypeFactory.createCollection(field.getType());
+        Collection collection = null;
+        try {
+            collection = TypeFactory.createCollection(field.getType());
 
-        for (int i = 0; i < Array.getLength(array); i++) {
-            collection.add(Array.get(array, i));
+            for (int i = 0; i < Array.getLength(array); i++) {
+                collection.add(Array.get(array, i));
+            }
+        } catch (IllegalAccessException | InstantiationException e) {
+            System.err.println(e.getMessage());
         }
 
         return collection;
@@ -148,7 +161,7 @@ public class JSONSerializer {
         Class<?> mapKeyTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
         Class<?> mapValueTypeClass = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
 
-        Map map = new HashMap<>();
+        HashMap<Object, Object> map = new HashMap<>();
         if (getFieldType(mapKeyTypeClass) == FieldType.Simple) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonArrayElem = (JSONObject) jsonArray.get(i);
@@ -156,7 +169,7 @@ public class JSONSerializer {
                 Object mapValue = jsonArrayElem.get(MAP_ELEM_VALUE_HDR);
 
                 if (getFieldType(mapValueTypeClass) == FieldType.Simple) {
-                    map.put(mapKey, TypeFactory.getSimpleTypeValueFromString(mapKeyTypeClass, mapValue.toString()));
+                    map.put(mapKey, TypeFactory.getSimpleTypeValueFromString(mapValueTypeClass, mapValue.toString()));
                 }
                 else {
                     Object obj = mapValueTypeClass.newInstance();

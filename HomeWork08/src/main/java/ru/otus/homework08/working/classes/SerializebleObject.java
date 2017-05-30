@@ -22,6 +22,7 @@ public class SerializebleObject {
     private Dummy[] objArrayFld;
 
     private List<Integer> listFld = new ArrayList<>();
+    private LinkedList<Integer> listFld2 = new LinkedList<>();
     private List<Dummy> objListFld = new ArrayList<>();
 
     private Map<String, Integer> mapFld = new HashMap<>();
@@ -49,6 +50,7 @@ public class SerializebleObject {
 
         for (int i = 1; i <= DEFAULT_ARRAY_OR_COLLECTION_FIELDS_LEN; i++) {
             listFld.add(i);
+            listFld2.add(i);
             mapFld.put("Key#" + i, i * DEFAULT_VALUE_FOR_NUMBER_FIELDS);
             objListFld.add(new Dummy(i));
             objMapFld.put(i, new Dummy(i));
@@ -72,6 +74,7 @@ public class SerializebleObject {
                 ", arrayFld=" + Arrays.toString(arrayFld) +
                 ", objArrayFld=" + Arrays.toString(objArrayFld) +
                 ", listFld=" + listFld +
+                ", listFld=2" + listFld2 +
                 ", mapFld=" + mapFld +
                 ", objListFld=" + objListFld +
                 ", objMapFld=" + objMapFld +
@@ -80,7 +83,7 @@ public class SerializebleObject {
                 '}';
     }
 
-    public boolean simpleFilldsEquals(SerializebleObject o) {
+    public boolean simpleFieldsEquals(SerializebleObject o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -107,32 +110,77 @@ public class SerializebleObject {
         return Arrays.equals(objArrayFld, o.objArrayFld);
     }
 
+    public boolean listsFieldsEquals(SerializebleObject o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    public String strCompare(SerializebleObject o, boolean showAll) {
-        String res = "";
-        res += (((!showAll && (intFld + "").equals(o.intFld + "")))? "" : ("intFld=" + intFld + "\n" + "intFld=" + o.intFld + "\n"));
-        res += (((!showAll && (boxedIntFld + "").equals(o.boxedIntFld + "")))? "" : ("boxedIntFld=" + boxedIntFld + "\n" + "boxedIntFld=" + o.boxedIntFld + "\n"));
-        res += (((!showAll && (doubleFld + "").equals(o.doubleFld + "")))? "" : ("doubleFld=" + doubleFld + "\n" + "doubleFld=" + o.doubleFld + "\n"));
-        res += (((!showAll && (boxedDoubleFld + "").equals(o.boxedDoubleFld + "")))? "" : ("boxedDoubleFld=" + doubleFld + "\n" + "boxedDoubleFld=" + o.boxedDoubleFld + "\n"));
-        res += (((!showAll && (stringFld + "").equals(o.stringFld + "")))? "" : ("stringFld=" + stringFld + "\n" + "stringFld=" + o.stringFld + "\n"));
-        res += (((!showAll && (objFld + "").equals(o.objFld + "")))? "" : ("objFld=" + objFld + "\n" + "objFld=" + o.objFld + "\n"));
-        res += (((!showAll && (stringFld + "").equals(o.stringFld + "")))? "" : ("stringFld=" + stringFld + "\n" + "stringFld=" + o.stringFld + "\n"));
+        if (listFld != null ? !listFld.equals(o.listFld) : o.listFld != null) return false;
+        if (listFld2 != null ? !listFld2.equals(o.listFld2) : o.listFld2 != null) return false;
+        return objListFld != null ? objListFld.equals(o.objListFld) : o.objListFld == null;
+    }
 
-        String arrStr1 = Arrays.toString(arrayFld);
-        String arrStr2 = Arrays.toString(o.arrayFld);
-        res += (((!showAll && (arrStr1 + "").equals(arrStr2 + "")))? "" : ("arrayFld=" + arrStr1 + "\n" + "arrayFld=" + arrStr2 + "\n"));
+    public boolean setFieldsEquals(SerializebleObject o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        arrStr1 = Arrays.toString(arrayFld);
-        arrStr2 = Arrays.toString(o.arrayFld);
-        res += (((!showAll && (arrStr1 + "").equals(arrStr2 + "")))? "" : ("objArrayFld=" + arrStr1 + "\n" + "objArrayFld=" + arrStr2 + "\n"));
+        if (intSetFld != null ? !intSetFld.equals(o.intSetFld) : o.intSetFld != null) return false;
+        return objSetFld != null ? objSetFld.equals(o.objSetFld) : o.objSetFld == null;
+    }
 
-        res += (((!showAll && (listFld + "").equals(o.listFld + "")))? "" : ("listFld=" + listFld + "\n" + "listFld=" + o.listFld + "\n"));
-        res += (((!showAll && (mapFld + "").equals(o.mapFld + "")))? "" : ("mapFld=" + mapFld + "\n" + "mapFld=" + o.mapFld + "\n"));
-        res += (((!showAll && (objListFld + "").equals(o.objListFld + "")))? "" : ("objListFld=" + objListFld + "\n" + "objListFld=" + o.objListFld + "\n"));
-        res += (((!showAll && (objMapFld + "").equals(o.objMapFld + "")))? "" : ("objMapFld=" + objMapFld + "\n" + "objMapFld=" + o.objMapFld + "\n"));
-        res += (((!showAll && (intSetFld + "").equals(o.intSetFld + "")))? "" : ("intSetFld=" + intSetFld + "\n" + "intSetFld=" + o.intSetFld + "\n"));
-        res += (((!showAll && (objSetFld + "").equals(o.objSetFld + "")))? "" : ("objSetFld=" + objSetFld + "\n" + "objSetFld=" + o.objSetFld + "\n"));
+    public boolean mapFieldsEquals(SerializebleObject o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return res;
+        if (mapFld != null ? !mapFld.equals(o.mapFld) : o.mapFld != null) return false;
+        return objMapFld != null ? objMapFld.equals(o.objMapFld) : o.objMapFld == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SerializebleObject that = (SerializebleObject) o;
+
+        if (intFld != that.intFld) return false;
+        if (Double.compare(that.doubleFld, doubleFld) != 0) return false;
+        if (boxedIntFld != null ? !boxedIntFld.equals(that.boxedIntFld) : that.boxedIntFld != null) return false;
+        if (boxedDoubleFld != null ? !boxedDoubleFld.equals(that.boxedDoubleFld) : that.boxedDoubleFld != null)
+            return false;
+        if (stringFld != null ? !stringFld.equals(that.stringFld) : that.stringFld != null) return false;
+        if (objFld != null ? !objFld.equals(that.objFld) : that.objFld != null) return false;
+        if (!Arrays.equals(arrayFld, that.arrayFld)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(objArrayFld, that.objArrayFld)) return false;
+        if (listFld != null ? !listFld.equals(that.listFld) : that.listFld != null) return false;
+        if (listFld2 != null ? !listFld2.equals(that.listFld2) : that.listFld2 != null) return false;
+        if (objListFld != null ? !objListFld.equals(that.objListFld) : that.objListFld != null) return false;
+        if (mapFld != null ? !mapFld.equals(that.mapFld) : that.mapFld != null) return false;
+        if (objMapFld != null ? !objMapFld.equals(that.objMapFld) : that.objMapFld != null) return false;
+        if (intSetFld != null ? !intSetFld.equals(that.intSetFld) : that.intSetFld != null) return false;
+        return objSetFld != null ? objSetFld.equals(that.objSetFld) : that.objSetFld == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = intFld;
+        result = 31 * result + (boxedIntFld != null ? boxedIntFld.hashCode() : 0);
+        temp = Double.doubleToLongBits(doubleFld);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (boxedDoubleFld != null ? boxedDoubleFld.hashCode() : 0);
+        result = 31 * result + (stringFld != null ? stringFld.hashCode() : 0);
+        result = 31 * result + (objFld != null ? objFld.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(arrayFld);
+        result = 31 * result + Arrays.hashCode(objArrayFld);
+        result = 31 * result + (listFld != null ? listFld.hashCode() : 0);
+        result = 31 * result + (listFld2 != null ? listFld2.hashCode() : 0);
+        result = 31 * result + (objListFld != null ? objListFld.hashCode() : 0);
+        result = 31 * result + (mapFld != null ? mapFld.hashCode() : 0);
+        result = 31 * result + (objMapFld != null ? objMapFld.hashCode() : 0);
+        result = 31 * result + (intSetFld != null ? intSetFld.hashCode() : 0);
+        result = 31 * result + (objSetFld != null ? objSetFld.hashCode() : 0);
+        return result;
     }
 }
