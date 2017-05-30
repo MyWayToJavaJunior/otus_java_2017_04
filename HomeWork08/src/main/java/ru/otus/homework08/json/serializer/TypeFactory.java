@@ -50,7 +50,6 @@ public class TypeFactory {
         }
         else {
             try {
-//                collection = (Collection) collectionTypeClass.getConstructor(Collection.class).newInstance(elems);
                 collection = (Collection) collectionTypeClass.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
                 System.err.println(e.getMessage());
