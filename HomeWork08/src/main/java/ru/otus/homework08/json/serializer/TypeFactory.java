@@ -59,4 +59,15 @@ public class TypeFactory {
         return collection;
     }
 
+    static Object createNewObject(Class objectClass) {
+        Object object = null;
+        try {
+            object = objectClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            System.err.println(e.getMessage());
+        }
+        return object;
+    }
+
+
 }

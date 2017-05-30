@@ -43,11 +43,9 @@ public class JSONSerializer implements IJSONSerializer {
         for (Map.Entry<Object, Object> mapElem : m.entrySet()) {
             if (FieldType.getForClass(mapElem.getKey().getClass()) != FieldType.Simple) continue;
 
-            FieldType elemType = FieldType.getForClass(mapElem.getValue().getClass());
             JSONObject jsonMapElem = new JSONObject();
-
             jsonMapElem.put(MAP_ELEM_KEY_HDR, mapElem.getKey().toString());
-            if (elemType == FieldType.Simple){
+            if (FieldType.getForClass(mapElem.getValue().getClass()) == FieldType.Simple){
                 jsonMapElem.put(MAP_ELEM_VALUE_HDR, mapElem.getValue().toString());
             }
             else {
@@ -55,7 +53,6 @@ public class JSONSerializer implements IJSONSerializer {
             }
             jsonArray.add(jsonMapElem);
         }
-
         return jsonArray;
     }
 
@@ -88,7 +85,6 @@ public class JSONSerializer implements IJSONSerializer {
 
         Field[] fields = object.getClass().getDeclaredFields();
         for (Field f : fields) {
-
             if ((f.getModifiers() & Modifier.FINAL) == Modifier.FINAL) continue;
 
             f.setAccessible(true);
@@ -100,7 +96,6 @@ public class JSONSerializer implements IJSONSerializer {
         }
         return json;
     }
-
 
     private Object JSONArrayToObjectArray(Class arrayElemTypeClass, JSONArray jsonArray) {
         FieldType arrayElemFieldType = FieldType.getForClass(arrayElemTypeClass);
@@ -146,12 +141,7 @@ public class JSONSerializer implements IJSONSerializer {
     }
 
     public Object deserializeJSONToObject(JSONObject json, Class objectClass) {
-        Object object = null;
-        try {
-            object = objectClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            System.err.println(e.getMessage());
-        }
+        Object object = TypeFactory.createNewObject(objectClass);
         if (object == null) return null;
 
         for (Object key : json.keySet()) {
