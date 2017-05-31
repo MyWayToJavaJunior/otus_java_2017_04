@@ -4,7 +4,10 @@ public enum FieldType {
     Simple, Array, Collection, Map, Unknow;
 
     public static FieldType getForClass(Class fieldClass) {
-        if (fieldClass.isPrimitive() || Number.class.isAssignableFrom(fieldClass) || fieldClass.equals(String.class)) {
+        boolean isSimple = fieldClass.isPrimitive() || Number.class.isAssignableFrom(fieldClass) ||
+                           fieldClass.equals(String.class) || fieldClass.equals(Character.class) ||
+                           fieldClass.equals(Boolean.class);
+        if (isSimple) {
             return FieldType.Simple;
         }else if (fieldClass.isArray()){
             return FieldType.Array;

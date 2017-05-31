@@ -66,11 +66,9 @@ public class JSONSerializer implements IJSONSerializer {
         if (fieldType == FieldType.Simple) {
             json.put(fieldName, field.toString());
         }
-        else if (fieldType == FieldType.Array){
-            json.put(fieldName, arrayToJSONArray(field));
-        }
-        else if (fieldType == FieldType.Collection){
-            json.put(fieldName, arrayToJSONArray(((Collection)field).toArray()));
+        else if (fieldType == FieldType.Array || fieldType == FieldType.Collection){
+            Object array = (fieldType == FieldType.Array)? field : ((Collection)field).toArray();
+            json.put(fieldName, arrayToJSONArray(array));
         }
         else if (fieldType == FieldType.Map){
             json.put(fieldName, mapToJSONArray(field));
