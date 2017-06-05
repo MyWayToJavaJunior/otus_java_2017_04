@@ -1,7 +1,7 @@
 package ru.otus.homework09.dao;
 
 import ru.otus.homework09.db.DBSettings;
-import ru.otus.homework09.db.DatabaseHelper;
+import ru.otus.homework09.db.helpers.DatabaseHelper;
 
 import java.util.Arrays;
 

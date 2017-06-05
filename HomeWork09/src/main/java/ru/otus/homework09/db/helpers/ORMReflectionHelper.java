@@ -1,4 +1,6 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.helpers;
+
+import ru.otus.homework09.db.handlers.TableColumnFieldHandler;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

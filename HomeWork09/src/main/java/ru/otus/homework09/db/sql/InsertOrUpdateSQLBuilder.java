@@ -1,4 +1,4 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -56,12 +56,12 @@ public class InsertOrUpdateSQLBuilder {
     public static void setStatmentParams(PreparedStatement statement, List<Object> values, int startIndex) throws SQLException {
         int index = startIndex;
         for (Object param : values) {
-            statement.setObject(++index, param);
+            statement.setObject(index++, param);
         }
     }
 
     public static void setStatmentParams(PreparedStatement statement, List<Object> valuesToInsert, List<Object> valuesToUpdate) throws SQLException {
-        setStatmentParams(statement, valuesToInsert, 0);
-        setStatmentParams(statement, valuesToUpdate, valuesToInsert.size());
+        setStatmentParams(statement, valuesToInsert, 1);
+        setStatmentParams(statement, valuesToUpdate, valuesToInsert.size() + 1);
     }
 }

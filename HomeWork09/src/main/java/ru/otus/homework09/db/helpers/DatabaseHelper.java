@@ -1,4 +1,8 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.helpers;
+
+import ru.otus.homework09.db.CommonExecuter;
+import ru.otus.homework09.db.DBSettings;
+import ru.otus.homework09.db.sql.CreateTableSQLBuilder;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,8 +22,8 @@ public class DatabaseHelper {
         try (Connection connection = ConnectionHelper.getSystemDBLocalConnection(settings.getLogin(), settings.getPassword())) {
 
             CommonExecuter commonExecuter = new CommonExecuter(connection);
-            commonExecuter.execUpdateQuery(String.format(CREATE_DATABASE_SQL, settings.getDatabseName()));
-            res = commonExecuter.execSelectTQuery(String.format(CHECK_DATABASE_PRESENT_SQL, settings.getDatabseName()), ResultSet::next);
+            commonExecuter.execUpdate(String.format(CREATE_DATABASE_SQL, settings.getDatabseName()));
+            res = commonExecuter.execTypedSelect(String.format(CHECK_DATABASE_PRESENT_SQL, settings.getDatabseName()), ResultSet::next);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -31,8 +35,8 @@ public class DatabaseHelper {
         try (Connection connection = ConnectionHelper.getSystemDBLocalConnection(settings.getLogin(), settings.getPassword())) {
 
             CommonExecuter commonExecuter = new CommonExecuter(connection);
-            commonExecuter.execUpdateQuery(String.format(DROP_DATABASE_SQL, settings.getDatabseName()));
-            res = !commonExecuter.execSelectTQuery(String.format(CHECK_DATABASE_PRESENT_SQL, settings.getDatabseName()), ResultSet::next);
+            commonExecuter.execUpdate(String.format(DROP_DATABASE_SQL, settings.getDatabseName()));
+            res = !commonExecuter.execTypedSelect(String.format(CHECK_DATABASE_PRESENT_SQL, settings.getDatabseName()), ResultSet::next);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -56,8 +60,8 @@ public class DatabaseHelper {
             CommonExecuter commonExecuter = new CommonExecuter(connection);
             String query = builder.build();
 
-            commonExecuter.execUpdateQuery(query);
-            res = commonExecuter.execSelectTQuery(String.format(CHECK_TABLE_PRESENT_SQL, tableName), ResultSet::next);
+            commonExecuter.execUpdate(query);
+            res = commonExecuter.execTypedSelect(String.format(CHECK_TABLE_PRESENT_SQL, tableName), ResultSet::next);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }

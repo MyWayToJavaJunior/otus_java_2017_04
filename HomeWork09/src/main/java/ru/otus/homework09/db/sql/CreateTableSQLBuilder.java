@@ -1,4 +1,4 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.sql;
 
 public class CreateTableSQLBuilder {
     private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s(%s, primary key (%s))";

@@ -1,4 +1,4 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.handlers;
 
 import javax.persistence.Column;
 import java.lang.reflect.Field;

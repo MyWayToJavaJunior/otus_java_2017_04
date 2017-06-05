@@ -1,4 +1,6 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.db.helpers;
+
+import ru.otus.homework09.db.DBSettings;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

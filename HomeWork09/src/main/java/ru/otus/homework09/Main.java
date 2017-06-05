@@ -3,7 +3,7 @@ package ru.otus.homework09;
 import ru.otus.homework09.dao.DatabaseCreator;
 import ru.otus.homework09.dao.UsersDAO;
 import ru.otus.homework09.dao.UsersDataSet;
-import ru.otus.homework09.db.ConnectionHelper;
+import ru.otus.homework09.db.helpers.ConnectionHelper;
 import ru.otus.homework09.db.DBSettings;
 
 import java.sql.Connection;
@@ -31,6 +31,10 @@ public class Main {
             user.setAge(35);
             user.setName("Vasya");
             dao.updateUser(user);
+
+            UsersDataSet userDambldor = dao.getUser(2);
+            System.out.println(userDambldor);
+
         } catch (Exception e ) {
             System.err.println(e.getMessage());
         }
