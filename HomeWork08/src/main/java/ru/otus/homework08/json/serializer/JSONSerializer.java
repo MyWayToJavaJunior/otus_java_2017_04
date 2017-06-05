@@ -18,6 +18,7 @@ import java.util.*;
 public class JSONSerializer implements IJSONSerializer {
     private static final String MAP_ELEM_KEY_HDR = "key";
     private static final String MAP_ELEM_VALUE_HDR = "val";
+    private static final String COLLECTION_ELEM_KEY_HDR = "elem";
 
     private JSONArray arrayToJSONArray(Object array) {
         JSONArray jsonArray = new JSONArray();
@@ -81,15 +82,21 @@ public class JSONSerializer implements IJSONSerializer {
     public JSONObject serializeObjectToJSON(Object object) {
         JSONObject json = new JSONObject();
 
-        Field[] fields = object.getClass().getDeclaredFields();
-        for (Field f : fields) {
-            if ((f.getModifiers() & Modifier.FINAL) == Modifier.FINAL) continue;
 
-            f.setAccessible(true);
-            try {
-                fieldToJSON(json, f.getName(), f.get(object));
-            } catch (IllegalAccessException e) {
-                System.err.println(e.getMessage());
+        if (FieldType.getForClass(object.getClass()) != FieldType.Unknow) {
+            fieldToJSON(json, COLLECTION_ELEM_KEY_HDR, object);
+        }
+        else {
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (Field f : fields) {
+                if ((f.getModifiers() & Modifier.FINAL) == Modifier.FINAL) continue;
+
+                f.setAccessible(true);
+                try {
+                    fieldToJSON(json, f.getName(), f.get(object));
+                } catch (IllegalAccessException e) {
+                    System.err.println(e.getMessage());
+                }
             }
         }
         return json;
