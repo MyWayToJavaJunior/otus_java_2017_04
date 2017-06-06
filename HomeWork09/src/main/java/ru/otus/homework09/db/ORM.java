@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ORM {
+public class ORM implements IORM{
     private final Connection connection;
     CommonExecuter executer;
 
