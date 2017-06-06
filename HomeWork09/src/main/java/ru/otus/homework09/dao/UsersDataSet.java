@@ -63,4 +63,24 @@ public class UsersDataSet {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UsersDataSet set = (UsersDataSet) o;
+
+        if (age != set.age) return false;
+        if (id != null ? !id.equals(set.id) : set.id != null) return false;
+        return name != null ? name.equals(set.name) : set.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + age;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
 }

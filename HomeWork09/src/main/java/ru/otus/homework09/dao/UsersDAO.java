@@ -13,7 +13,7 @@ public class UsersDAO {
         orm = new ORM(connection);
     }
 
-    public UsersDataSet getUser(int id) {
+    public UsersDataSet getUser(Long id) {
         try {
             return orm.loadObject(UsersDataSet.class, id);
         } catch (Exception e) {

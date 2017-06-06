@@ -10,23 +10,18 @@ import java.io.File;
 public class DBSettings {
     public static final String MYSQL_SYSTEM_DB = "information_schema";
 
-    private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_MYSQL_PORT = 3306;
 
-    private static final String DEFAULT_DATABASE_NAME = "homework09";
-    private static final String DEFAULT_LOGIN = "anyuser";
-    private static final String DEFAULT_PASSWORD = "anyuser3310";
-
-    private String host = DEFAULT_HOST;
+    private String host;
     private int port = DEFAULT_MYSQL_PORT;
-    private String databseName = DEFAULT_DATABASE_NAME;
-    private String login = DEFAULT_LOGIN;
-    private String password = DEFAULT_PASSWORD;
+    private String databseName;
+    private String login;
+    private String password;
 
     private static DBSettings instance;
 
     private DBSettings() {
-        loadFromPersistenceXML();
+        loadFromXML();
     }
 
     public static DBSettings getInstance() {
@@ -67,8 +62,8 @@ public class DBSettings {
                 '}';
     }
 
-    private void loadFromPersistenceXML() {
-        File file = new File(getClass().getClassLoader().getResource("META-INF/persistence.xml").getFile());
+    public void loadFromXML() {
+        File file = new File(getClass().getClassLoader().getResource("dbsettings.xml").getFile());
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
@@ -85,24 +80,34 @@ public class DBSettings {
         private static final String ATTR_VALUE = "value";
         private static final String ATTR_NAME = "name";
         private static final String NODE_PROPERTY = "property";
-        private static final String PROPERTY_USERNAME = "hibernate.connection.username";
-        private static final String PROPERTY_PASSWORD = "hibernate.connection.password";
-        private static final String PROPERTY_URL = "hibernate.connection.url";
+        private static final String PROPERTY_HOST = "host";
+        private static final String PROPERTY_PORT = "port";
+        private static final String PROPERTY_DATABASE = "database";
+        private static final String PROPERTY_USERNAME = "username";
+        private static final String PROPERTY_PASSWORD = "password";
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if (qName.equals(NODE_PROPERTY)) {
                 String propertyName = attributes.getValue(ATTR_NAME);
-                if (propertyName.equals(PROPERTY_USERNAME)) {
+                if (propertyName.equals(PROPERTY_HOST)) {
+                    host = attributes.getValue(ATTR_VALUE);
+                }
+                else if (propertyName.equals(PROPERTY_PORT)) {
+                    try {
+                        port = Integer.parseInt(attributes.getValue(ATTR_VALUE));
+                    } catch (NumberFormatException e){
+                        port = DEFAULT_MYSQL_PORT;
+                    }
+                }
+                else if (propertyName.equals(PROPERTY_DATABASE)) {
+                    databseName = attributes.getValue(ATTR_VALUE);
+                }
+                else if (propertyName.equals(PROPERTY_USERNAME)) {
                     login = attributes.getValue(ATTR_VALUE);
-                } else if (propertyName.equals(PROPERTY_PASSWORD)) {
+                }
+                else if (propertyName.equals(PROPERTY_PASSWORD)) {
                     password = attributes.getValue(ATTR_VALUE);
-                } else if (propertyName.equals(PROPERTY_URL)) {
-                    String[] url = attributes.getValue(ATTR_VALUE).split("/");
-                    String[] server = url[2].split(":");
-                    host = server[0];
-                    port = (server.length > 1)? Integer.parseInt(server[1]): DEFAULT_MYSQL_PORT;
-                    databseName = url[3];
                 }
             }
         }

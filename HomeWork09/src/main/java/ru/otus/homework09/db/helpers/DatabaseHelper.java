@@ -15,6 +15,8 @@ public class DatabaseHelper {
     private static final String CHECK_TABLE_PRESENT_SQL = "SELECT * FROM information_schema.TABLES WHERE TABLE_NAME = '%s'";
     private static final String CREATE_DATABASE_SQL = "CREATE DATABASE IF NOT EXISTS %s";
     private static final String DROP_DATABASE_SQL = "DROP DATABASE %s";
+    private static final String SELECT_ALL_SQL = "SELECT * FROM %s";
+    private static final String CLEAR_TABLE_SQL = "TRUNCATE TABLE %s";
 
     public static boolean createDatabase(DBSettings settings) {
         boolean res = false;
@@ -66,6 +68,19 @@ public class DatabaseHelper {
             System.err.println(e.getMessage());
         }
 
+        return res;
+    }
+
+    public static boolean clearTable(DBSettings settings, String tableName) {
+        boolean res = false;
+        try (Connection connection = ConnectionHelper.getLocalConnection(settings.getDatabseName(), settings.getLogin(), settings.getPassword())) {
+
+            CommonExecuter commonExecuter = new CommonExecuter(connection);
+            commonExecuter.execUpdate(String.format(CLEAR_TABLE_SQL, tableName));
+            res = !commonExecuter.execTypedSelect(String.format(SELECT_ALL_SQL, tableName), ResultSet::next);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
         return res;
     }
 }

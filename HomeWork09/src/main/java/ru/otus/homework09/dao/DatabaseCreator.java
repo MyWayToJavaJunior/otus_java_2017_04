@@ -36,4 +36,8 @@ public class DatabaseCreator {
     public static boolean dropHomework09Database(DBSettings settings) {
         return DatabaseHelper.dropDatabase(settings);
     }
+
+    public static boolean clearUsersTable(DBSettings settings) {
+        return DatabaseHelper.clearTable(settings, TABLE_NAME);
+    }
 }
