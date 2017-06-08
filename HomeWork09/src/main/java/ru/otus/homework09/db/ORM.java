@@ -2,10 +2,12 @@ package ru.otus.homework09.db;
 
 import ru.otus.homework09.db.helpers.ORMReflectionHelper;
 import ru.otus.homework09.db.sql.InsertOrUpdateSQLBuilder;
+import ru.otus.homework09.reflection.DBFieldToClassFieldRelation;
+import ru.otus.homework09.reflection.IMetaData;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ORM implements IORM{
@@ -17,78 +19,59 @@ public class ORM implements IORM{
         executer = new CommonExecuter(connection);
     }
 
-    public<T> T loadObject(Class<T> clazz, long id) throws IllegalAccessException, InstantiationException, SQLException {
-        if (!ORMReflectionHelper.isJPAEntity(clazz)) return null;
+    @Override
+    public<T> T loadObject(Class<T> clazz, IMetaData metaData, long id) throws IllegalAccessException, InstantiationException, SQLException {
+        if (clazz == null || metaData.isEmpty()) return null;
 
-        String tableName = ORMReflectionHelper.getMappedTableName(clazz);
-        String idFieldName = ORMReflectionHelper.getIdFieldName(clazz);
-        if (tableName == null || idFieldName == null) return null;
-
-        String query = String.format("SELECT * FROM %s WHERE %s = ? LIMIT 1", tableName, idFieldName);
+        String query = String.format("SELECT * FROM %s WHERE %s = ? LIMIT 1", metaData.getMappedTableName(), metaData.getIdFieldName());
         return executer.execSelectOneTypedRec(query, clazz, id, (clazz1, resultSet) -> {
-            T obj = clazz.newInstance();
+            T obj = null;
             while (resultSet.next()) {
-                ORMReflectionHelper.walOnTableColumnFields(obj, (obj1, field, columnAnnotation) -> {
+               obj = clazz.newInstance();
+               for (DBFieldToClassFieldRelation relation : metaData.getFieldsToInsert()){
                     try {
-                        Object value = resultSet.getObject(columnAnnotation.name());
+                        Field field = relation.getClassField();
+                        Object value = resultSet.getObject(relation.getDbFieldName());
                         if (value != null) {
                             boolean isAccessible = field.isAccessible();
                             field.setAccessible(true);
-                            field.set(obj1, value);
+                            field.set(obj, value);
                             field.setAccessible(isAccessible);
                         }
                     } catch (SQLException e) {
                         System.err.println(e.getMessage());
                     }
 
-                });
+                }
             }
             return obj;
 
         });
     }
 
-    public boolean updateObject(Object obj) throws IllegalAccessException, SQLException {
-        if (!ORMReflectionHelper.isJPAEntity(obj.getClass())) return false;
-        String tableName = ORMReflectionHelper.getMappedTableName(obj.getClass());
-        if (tableName == null) return false;
+    @Override
+    public boolean updateObject(Object obj, IMetaData metaData) throws IllegalAccessException, SQLException {
+        if (metaData.isEmpty()) return false;
 
-        List<String> fieldsToInsert = new ArrayList<>();
-        List<Object> valuesToInsert = new ArrayList<>();
-        List<String> fieldsToUpdate = new ArrayList<>();
-        List<Object> valuesToUpdate = new ArrayList<>();
+        List<String> fieldsNamesToInsert = metaData.getFieldsNamesToInsert();
+        List<String> fieldsNamesToUpdate = metaData.getFieldsNamesToUpdate();
+        List<Object> valuesToInsert = ORMReflectionHelper.getFieldsValues(obj, metaData.getFieldsToInsert());
+        List<Object> valuesToUpdate = ORMReflectionHelper.getFieldsValues(obj, metaData.getFieldsToUpdate());
 
-        ORMReflectionHelper.walOnTableColumnFields(obj, (obj1, field, columnAnnotation) -> {
-            Object fieldValue = field.get(obj1);
-            fieldsToInsert.add(columnAnnotation.name());
-            valuesToInsert.add(fieldValue);
-
-            if (columnAnnotation.updatable()) {
-                fieldsToUpdate.add(columnAnnotation.name());
-                valuesToUpdate.add(fieldValue);
-            }
-        });
-        String query = InsertOrUpdateSQLBuilder.buildInsertOrUpdateSQL(tableName, fieldsToInsert, fieldsToUpdate);
+        String query = InsertOrUpdateSQLBuilder.buildInsertOrUpdateSQL(metaData.getMappedTableName(), fieldsNamesToInsert, fieldsNamesToUpdate);
         return executer.execInsertOrUpdate(query, valuesToInsert, valuesToUpdate);
     }
 
-    public boolean insertObject(Object obj) throws SQLException, IllegalAccessException {
+    @Override
+    public boolean insertObject(Object obj, IMetaData metaData) throws SQLException, IllegalAccessException {
         if (!ORMReflectionHelper.isJPAEntity(obj.getClass())) return false;
         String tableName = ORMReflectionHelper.getMappedTableName(obj.getClass());
         if (tableName == null) return false;
 
-        List<String> fieldsToInsert = new ArrayList<>();
-        List<Object> valuesToInsert = new ArrayList<>();
+        List<String> fieldsNamesToInsert = metaData.getFieldsNamesToInsert();
+        List<Object> valuesToInsert = ORMReflectionHelper.getFieldsValues(obj, metaData.getFieldsToInsert());
 
-        ORMReflectionHelper.walOnTableColumnFields(obj, (obj1, field, columnAnnotation) -> {
-            Object fieldValue = field.get(obj1);
-            if (columnAnnotation.insertable()) {
-                fieldsToInsert.add(columnAnnotation.name());
-                valuesToInsert.add(fieldValue);
-            }
-        });
-
-        String query = InsertOrUpdateSQLBuilder.buildInsertSQL(tableName, fieldsToInsert);
+        String query = InsertOrUpdateSQLBuilder.buildInsertSQL(tableName, fieldsNamesToInsert);
         return executer.execInsert(query, valuesToInsert);
     }
 }

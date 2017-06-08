@@ -14,7 +14,7 @@ public class DatabaseHelper {
     private static final String CHECK_DATABASE_PRESENT_SQL = "SELECT * FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '%s'";
     private static final String CHECK_TABLE_PRESENT_SQL = "SELECT * FROM information_schema.TABLES WHERE TABLE_NAME = '%s'";
     private static final String CREATE_DATABASE_SQL = "CREATE DATABASE IF NOT EXISTS %s";
-    private static final String DROP_DATABASE_SQL = "DROP DATABASE %s";
+    private static final String DROP_DATABASE_SQL = "DROP DATABASE IF EXISTS %s";
     private static final String SELECT_ALL_SQL = "SELECT * FROM %s";
     private static final String CLEAR_TABLE_SQL = "TRUNCATE TABLE %s";
 

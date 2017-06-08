@@ -22,22 +22,27 @@ public class Main {
     private static final int FIRST_USER_NEW_AGE = 35;
     private static final String FIRST_USER_NEW_NAME = "Vasya";
 
+    private static final String MSG_DATABASE_DROP_FAILED = "Database drop failed";
+    private static final String MSG_DATABASE_CREATION_FAILED = "Database creation failed";
+
     public static void main(String[] args) {
         DBSettings settings = DBSettings.getInstance();
         System.out.println(settings.toString());
 
         if (!DatabaseCreator.dropHomework09Database(settings)) {
-            System.out.println("Database drop filed");
+            System.out.println(MSG_DATABASE_DROP_FAILED);
         }
 
         if (!DatabaseCreator.createHomework09Database(settings)) {
-            System.out.println("Database creation filed");
+            System.out.println(MSG_DATABASE_CREATION_FAILED);
         }
 
         try (Connection connection = ConnectionHelper.getLocalConnection(settings.getDatabseName(), settings.getLogin(), settings.getPassword())) {
             UsersDAO dao = new UsersDAO(connection);
 
             UsersDataSet user = new UsersDataSet(FIRST_USER_ID, FIRST_USER_AGE, FIRST_USER_NAME);
+            dao.updateUser(user);
+
             dao.updateUser(new UsersDataSet(SECOND_USER_ID, SECOND_USER_AGE, SECOND_USER_NAME));
             dao.updateUser(new UsersDataSet(NO_ID, THIRD_USER_AGE, THIRD_USER_NAME));
 
@@ -54,7 +59,7 @@ public class Main {
 
 
         if (!DatabaseCreator.dropHomework09Database(settings)) {
-            System.out.println("Database drop filed");
+            System.out.println(MSG_DATABASE_DROP_FAILED);
         }
 
     }

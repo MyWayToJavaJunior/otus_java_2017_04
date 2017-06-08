@@ -1,6 +1,7 @@
 package ru.otus.homework09.db.helpers;
 
-import ru.otus.homework09.db.handlers.TableColumnFieldHandler;
+import ru.otus.homework09.db.handlers.TableColumnClassFieldHandler;
+import ru.otus.homework09.reflection.DBFieldToClassFieldRelation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ORMReflectionHelper {
     private ORMReflectionHelper() {
@@ -23,11 +26,11 @@ public class ORMReflectionHelper {
         return tableAnnotation == null? null: ((Table)tableAnnotation).name();
     }
 
-    public static boolean isTableColumn(Field field) {
+    private static boolean isTableColumn(Field field) {
         return getColumnAnnotation(field) != null;
     }
 
-    public static Column getColumnAnnotation(Field field) {
+    private static Column getColumnAnnotation(Field field) {
         return field.getAnnotation(Column.class);
     }
 
@@ -43,13 +46,13 @@ public class ORMReflectionHelper {
         return null;
     }
 
-    public static boolean isSimpleObject(Class clazz) {
+    private static boolean isSimpleObject(Class clazz) {
         return (clazz.isPrimitive() || Number.class.isAssignableFrom(clazz) ||
                 clazz == String.class || clazz == Character.class || clazz == Boolean.class);
     }
 
-    public static void walOnTableColumnFields(Object obj, TableColumnFieldHandler handler) throws IllegalAccessException {
-        for (Field field : obj.getClass().getDeclaredFields()) {
+    public static void walOnTableColumnFields(Class clazz, TableColumnClassFieldHandler handler) {
+        for (Field field : clazz.getDeclaredFields()) {
             if (!isTableColumn(field)) continue;
             if (!isSimpleObject(field.getType())) continue;
 
@@ -57,10 +60,24 @@ public class ORMReflectionHelper {
             field.setAccessible(true);
             Column columnAnnotation = ORMReflectionHelper.getColumnAnnotation(field);
 
-            handler.handle(obj, field, columnAnnotation);
+            handler.handle(field, columnAnnotation);
 
             field.setAccessible(isAccessible);
         }
-
     }
+
+    public static List<Object> getFieldsValues(Object obj, List<DBFieldToClassFieldRelation> fields) throws IllegalAccessException {
+        List<Object> res = new ArrayList<>();
+        for (DBFieldToClassFieldRelation relation : fields) {
+            Field field = relation.getClassField();
+            boolean isAccessible = field.isAccessible();
+            field.setAccessible(true);
+
+            res.add(field.get(obj));
+
+            field.setAccessible(isAccessible);
+        }
+        return res;
+    }
+
 }
