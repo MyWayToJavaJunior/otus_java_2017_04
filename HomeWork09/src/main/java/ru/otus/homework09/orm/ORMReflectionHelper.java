@@ -1,7 +1,6 @@
-package ru.otus.homework09.db.helpers;
+package ru.otus.homework09.orm;
 
 import ru.otus.homework09.db.handlers.TableColumnClassFieldHandler;
-import ru.otus.homework09.reflection.DBFieldToClassFieldRelation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

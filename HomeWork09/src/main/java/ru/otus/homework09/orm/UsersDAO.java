@@ -1,9 +1,4 @@
-package ru.otus.homework09.dao;
-
-import ru.otus.homework09.db.IORM;
-import ru.otus.homework09.db.ORM;
-import ru.otus.homework09.reflection.IMetaData;
-import ru.otus.homework09.reflection.MetaData;
+package ru.otus.homework09.orm;
 
 import java.sql.Connection;
 

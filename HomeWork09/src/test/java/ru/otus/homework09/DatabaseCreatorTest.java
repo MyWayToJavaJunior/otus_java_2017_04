@@ -2,7 +2,7 @@ package ru.otus.homework09;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.otus.homework09.dao.DatabaseCreator;
+import ru.otus.homework09.db.DatabaseCreator;
 import ru.otus.homework09.db.DBSettings;
 
 public class DatabaseCreatorTest {

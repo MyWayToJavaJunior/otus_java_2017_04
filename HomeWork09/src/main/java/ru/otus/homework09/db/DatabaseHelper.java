@@ -1,7 +1,5 @@
-package ru.otus.homework09.db.helpers;
+package ru.otus.homework09.db;
 
-import ru.otus.homework09.db.CommonExecuter;
-import ru.otus.homework09.db.DBSettings;
 import ru.otus.homework09.db.sql.CreateTableSQLBuilder;
 
 import java.sql.Connection;

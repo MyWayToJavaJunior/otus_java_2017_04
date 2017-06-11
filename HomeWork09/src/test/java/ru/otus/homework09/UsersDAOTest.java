@@ -1,11 +1,11 @@
 package ru.otus.homework09;
 
 import org.junit.*;
-import ru.otus.homework09.dao.DatabaseCreator;
-import ru.otus.homework09.dao.UsersDAO;
-import ru.otus.homework09.dao.UsersDataSet;
+import ru.otus.homework09.db.DatabaseCreator;
+import ru.otus.homework09.orm.UsersDAO;
+import ru.otus.homework09.orm.UsersDataSet;
 import ru.otus.homework09.db.DBSettings;
-import ru.otus.homework09.db.helpers.ConnectionHelper;
+import ru.otus.homework09.db.ConnectionHelper;
 
 import java.sql.Connection;
 import java.sql.SQLException;

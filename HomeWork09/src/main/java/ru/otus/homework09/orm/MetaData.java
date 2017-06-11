@@ -1,6 +1,4 @@
-package ru.otus.homework09.reflection;
-
-import ru.otus.homework09.db.helpers.ORMReflectionHelper;
+package ru.otus.homework09.orm;
 
 import java.util.ArrayList;
 import java.util.List;

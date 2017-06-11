@@ -1,6 +1,4 @@
-package ru.otus.homework09.db.helpers;
-
-import ru.otus.homework09.db.DBSettings;
+package ru.otus.homework09.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,10 +22,6 @@ public class ConnectionHelper {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Connection getConnection(String host, String dbName, String login, String password) {
-        return getConnection(host, settings.getPort(), dbName, login, password);
     }
 
     public static Connection getLocalConnection(String dbName, String login, String password) {

@@ -1,9 +1,7 @@
-package ru.otus.homework09.db;
+package ru.otus.homework09.orm;
 
-import ru.otus.homework09.db.helpers.ORMReflectionHelper;
+import ru.otus.homework09.db.CommonExecuter;
 import ru.otus.homework09.db.sql.InsertOrUpdateSQLBuilder;
-import ru.otus.homework09.reflection.DBFieldToClassFieldRelation;
-import ru.otus.homework09.reflection.IMetaData;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;

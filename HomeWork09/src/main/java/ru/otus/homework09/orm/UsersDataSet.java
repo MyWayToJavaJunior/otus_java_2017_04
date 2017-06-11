@@ -1,4 +1,4 @@
-package ru.otus.homework09.dao;
+package ru.otus.homework09.orm;
 
 import javax.persistence.*;
 

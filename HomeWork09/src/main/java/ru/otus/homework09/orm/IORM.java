@@ -1,6 +1,4 @@
-package ru.otus.homework09.db;
-
-import ru.otus.homework09.reflection.IMetaData;
+package ru.otus.homework09.orm;
 
 import java.sql.SQLException;
 

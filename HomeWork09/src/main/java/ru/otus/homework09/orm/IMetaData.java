@@ -1,4 +1,4 @@
-package ru.otus.homework09.reflection;
+package ru.otus.homework09.orm;
 
 import java.util.List;
 
