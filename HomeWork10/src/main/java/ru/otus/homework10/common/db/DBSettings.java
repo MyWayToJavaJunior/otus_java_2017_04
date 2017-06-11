@@ -1,4 +1,4 @@
-package ru.otus.homework10.common;
+package ru.otus.homework10.common.db;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -6,7 +6,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.*;
 import java.io.File;
-import java.net.URL;
 
 public class DBSettings {
     private static final String DEFAULT_DB_SETTINGS_XML_FN = "dbsettings.xml";

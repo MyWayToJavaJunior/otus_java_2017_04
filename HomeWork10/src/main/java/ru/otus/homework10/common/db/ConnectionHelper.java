@@ -1,7 +1,5 @@
 package ru.otus.homework10.common.db;
 
-import ru.otus.homework10.common.DBSettings;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

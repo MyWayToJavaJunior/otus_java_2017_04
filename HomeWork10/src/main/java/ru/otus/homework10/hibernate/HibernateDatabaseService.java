@@ -6,10 +6,10 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import ru.otus.homework10.common.AddressDataSet;
-import ru.otus.homework10.common.DBSettings;
-import ru.otus.homework10.common.PhoneDataSet;
-import ru.otus.homework10.common.UserDataSet;
+import ru.otus.homework10.common.db.datasets.AddressDataSet;
+import ru.otus.homework10.common.db.DBSettings;
+import ru.otus.homework10.common.db.datasets.PhoneDataSet;
+import ru.otus.homework10.common.db.datasets.UserDataSet;
 import ru.otus.homework10.common.db.ConnectionHelper;
 import ru.otus.homework10.common.db.IDatabaseService;
 

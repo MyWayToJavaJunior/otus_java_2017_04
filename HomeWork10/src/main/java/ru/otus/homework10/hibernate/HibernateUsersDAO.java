@@ -1,7 +1,7 @@
 package ru.otus.homework10.hibernate;
 
 import org.hibernate.Session;
-import ru.otus.homework10.common.UserDataSet;
+import ru.otus.homework10.common.db.datasets.UserDataSet;
 
 public class HibernateUsersDAO {
     private final Session session;

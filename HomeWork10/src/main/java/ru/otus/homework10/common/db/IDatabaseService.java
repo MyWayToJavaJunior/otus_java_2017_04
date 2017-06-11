@@ -1,6 +1,6 @@
 package ru.otus.homework10.common.db;
 
-import ru.otus.homework10.common.UserDataSet;
+import ru.otus.homework10.common.db.datasets.UserDataSet;
 
 import java.io.Closeable;
 import java.sql.SQLException;

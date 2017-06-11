@@ -1,6 +1,5 @@
 package ru.otus.homework10.common.db;
 
-import ru.otus.homework10.common.DBSettings;
 import ru.otus.homework10.common.db.sql.CreateTableSQLBuilder;
 
 import java.sql.Connection;

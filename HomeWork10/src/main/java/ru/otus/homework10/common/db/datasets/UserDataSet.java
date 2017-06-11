@@ -1,4 +1,4 @@
-package ru.otus.homework10.common;
+package ru.otus.homework10.common.db.datasets;
 
 import javax.persistence.*;
 import java.util.ArrayList;

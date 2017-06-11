@@ -1,7 +1,7 @@
 package ru.otus.homework10.reflection.orm;
 
-import ru.otus.homework10.common.DBSettings;
-import ru.otus.homework10.common.UserDataSet;
+import ru.otus.homework10.common.db.DBSettings;
+import ru.otus.homework10.common.db.datasets.UserDataSet;
 import ru.otus.homework10.common.db.ConnectionHelper;
 import ru.otus.homework10.common.db.IDatabaseService;
 
