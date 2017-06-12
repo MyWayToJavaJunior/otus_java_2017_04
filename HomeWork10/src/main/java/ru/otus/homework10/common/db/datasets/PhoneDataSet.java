@@ -5,7 +5,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "phones")
 public class PhoneDataSet extends DataSet {
-    @ManyToOne
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private UserDataSet user;
 
@@ -27,6 +28,11 @@ public class PhoneDataSet extends DataSet {
         this.user = user;
         this.code = code;
         this.number = number;
+    }
+
+
+    public UserDataSet getUser() {
+        return user;
     }
 
     public void setUser(UserDataSet user) {

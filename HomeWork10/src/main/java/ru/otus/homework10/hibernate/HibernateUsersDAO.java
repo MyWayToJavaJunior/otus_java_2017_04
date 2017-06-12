@@ -1,5 +1,6 @@
 package ru.otus.homework10.hibernate;
 
+import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
 import ru.otus.homework10.common.db.datasets.UserDataSet;
 
@@ -15,11 +16,19 @@ public class HibernateUsersDAO {
     }
 
     public UserDataSet getUser(Long id) {
-        return session.load(UserDataSet.class, id);
+        return session.get(UserDataSet.class, id);
     }
 
     public boolean updateUser(UserDataSet user) {
-        return session.save(user) != null;
+        if (user.getId() == null || user.getId() <= 0) {
+            user.setId(null);
+            session.save(user);
+        }
+        else {
+            session.replicate(user, ReplicationMode.OVERWRITE);
+        }
+
+        return true;
     }
 
     public List<UserDataSet> getAllUsers() {

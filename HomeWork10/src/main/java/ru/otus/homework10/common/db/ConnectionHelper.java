@@ -32,6 +32,10 @@ public class ConnectionHelper {
         }
     }
 
+    public static Connection getConnection(DBSettings settings) {
+        return getConnection(settings.getHost(), settings.getPort(), settings.getDatabseName(), settings.getLogin(), settings.getPassword());
+    }
+
     static Connection getLocalConnection(String dbName, String login, String password) {
         return getConnection(DBSettings.DEFAULT_HOST, DBSettings.DEFAULT_MYSQL_PORT, dbName, login, password);
     }

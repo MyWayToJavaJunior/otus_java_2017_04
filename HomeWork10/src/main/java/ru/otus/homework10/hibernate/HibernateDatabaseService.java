@@ -18,39 +18,19 @@ import java.util.List;
 
 public class HibernateDatabaseService implements IDatabaseService {
     private final DBSettings settings;
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
+    //private final HibernateUsersDAO dao;
     private Session session;
-    private HibernateUsersDAO dao;
 
-    public HibernateDatabaseService() {
+    public HibernateDatabaseService(String configurationFileName) {
         settings = DBSettings.getInstance();
-    }
-
-    @Override
-    public void save(UserDataSet dataSet) throws SQLException {
-        Transaction transaction = session.beginTransaction();
-        dao.updateUser(dataSet);
-        transaction.commit();
-    }
-
-    @Override
-    public UserDataSet read(long id) throws SQLException {
-        return dao.getUser(id);
-    }
-
-    @Override
-    public List<UserDataSet> readAll() {
-        return dao.getAllUsers();
-    }
-
-    @Override
-    public void loadConfiguration(String configuartionFileName) {
+        settings.loadFromXML(configurationFileName);
 
         Configuration configuration = new Configuration();
 
-        configuration.addAnnotatedClass(UserDataSet.class);
         configuration.addAnnotatedClass(AddressDataSet.class);
         configuration.addAnnotatedClass(PhoneDataSet.class);
+        configuration.addAnnotatedClass(UserDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
@@ -63,25 +43,34 @@ public class HibernateDatabaseService implements IDatabaseService {
         configuration.setProperty("hibernate.connection.useSSL", "false");
         configuration.setProperty("hibernate.enable_lazy_load_no_trans", "true");
 
-        closeSessionFactory();
         sessionFactory = createSessionFactory(configuration);
-
     }
 
     @Override
-    public void openConnection() {
-        closeConnection();
-        session = sessionFactory.openSession();
-        dao = new HibernateUsersDAO(session);
-    }
-
-    @Override
-    public void closeConnection() {
-        if (session != null) {
-            session.close();
+    public void save(UserDataSet dataSet) throws SQLException {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            (new HibernateUsersDAO(session)).updateUser(dataSet);
+            transaction.commit();
         }
-        session = null;
-        dao = null;
+    }
+
+    @Override
+    public UserDataSet read(long id) throws SQLException {
+        UserDataSet user;
+        try (Session session = sessionFactory.openSession()) {
+            user = (new HibernateUsersDAO(session)).getUser(id);
+        }
+        return user;
+    }
+
+    @Override
+    public List<UserDataSet> readAll() {
+        List<UserDataSet> users;
+        try (Session session = sessionFactory.openSession()){
+            users = (new HibernateUsersDAO(session)).getAllUsers();
+        }
+        return users;
     }
 
     private void closeSessionFactory() {
@@ -92,7 +81,7 @@ public class HibernateDatabaseService implements IDatabaseService {
 
     @Override
     public void close() {
-        closeConnection();
+        if (session != null) session.close();
         closeSessionFactory();
     }
 

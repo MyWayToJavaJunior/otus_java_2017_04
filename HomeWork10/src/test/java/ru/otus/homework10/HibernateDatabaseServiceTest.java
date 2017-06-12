@@ -43,15 +43,13 @@ public class HibernateDatabaseServiceTest {
 
     @Test
     public void insertUserTest01() {
-        try(IDatabaseService service = new HibernateDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new HibernateDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = buildDefautlUser(1L);
             service.save(user);
 
-            UserDataSet dbuser = service.read(1L);
-            Assert.assertTrue(dbuser.equals(user));
+            UserDataSet dber = service.read(1L);
+            Assert.assertTrue(dber.equals(user));
         } catch (SQLException e) {
             Assert.fail(e.getMessage());
         }
@@ -59,9 +57,7 @@ public class HibernateDatabaseServiceTest {
 
     @Test
     public void insertUserTest02() {
-        try(IDatabaseService service = new HibernateDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new HibernateDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = buildDefautlUser(null);
             service.save(user);
@@ -75,21 +71,20 @@ public class HibernateDatabaseServiceTest {
 
     @Test
     public void updateUserTest02() {
-        try(IDatabaseService service = new HibernateDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new HibernateDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = buildDefautlUser(null);
             service.save(user);
 
-            user = service.read(1L);
-            user.setAge(TEST_USER_NEW_AGE);
-            user.setName(TEST_USER_NEW_NAME);
-            service.save(user);
 
-            UserDataSet dbuser = service.read(1L);
+            UserDataSet dbuser1 = service.read(1L);
+            dbuser1.setAge(TEST_USER_NEW_AGE);
+            dbuser1.setName(TEST_USER_NEW_NAME);
+            service.save(dbuser1);
 
-            Assert.assertTrue(dbuser.equals(user));
+            UserDataSet dbuser2 = service.read(1L);
+
+            Assert.assertTrue(dbuser2.equals(dbuser1));
         } catch (SQLException e) {
             Assert.fail(e.getMessage());
         }
@@ -97,9 +92,7 @@ public class HibernateDatabaseServiceTest {
 
     @Test
     public void selectUsersTest() {
-        try(IDatabaseService service = new HibernateDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new HibernateDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             List<UserDataSet> users = new ArrayList<>();
             for (int i = 0; i < 3; i++) {

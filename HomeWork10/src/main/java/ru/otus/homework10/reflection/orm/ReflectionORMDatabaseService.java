@@ -11,32 +11,32 @@ import java.util.List;
 
 public class ReflectionORMDatabaseService implements IDatabaseService {
     private static final String MSG_NOT_IMPEMENTED = "Not impemented";
-    private static final String MSG_CONNECTION_IS_CLOSED = "Connection is closed";
 
     private final DBSettings settings;
+    private final IMetaData usersDataSetMetaData;
 
-    ReflectionORMUsersDAO dao;
-    Connection connection;
 
-    public ReflectionORMDatabaseService() {
+    public ReflectionORMDatabaseService(String configuartionFileName) {
         settings = DBSettings.getInstance();
+        settings.loadFromXML(configuartionFileName);
+        usersDataSetMetaData = new MetaData();
+        usersDataSetMetaData.read(UserDataSet.class);
     }
 
     @Override
     public void save(UserDataSet dataSet) throws SQLException {
-        if (dao == null) {
-            throw new SQLException(MSG_CONNECTION_IS_CLOSED);
+        try (Connection connection = ConnectionHelper.getConnection(settings)) {
+            (new ReflectionORMUsersDAO(connection, usersDataSetMetaData)).updateUser(dataSet);
         }
-        dao.updateUser(dataSet);
     }
 
     @Override
     public UserDataSet read(long id) throws SQLException {
-        if (dao == null) {
-            throw new SQLException(MSG_CONNECTION_IS_CLOSED);
+        UserDataSet user;
+        try (Connection connection = ConnectionHelper.getConnection(settings)) {
+            user =  (new ReflectionORMUsersDAO(connection, usersDataSetMetaData)).getUser(id);
         }
-
-        return dao.getUser(id);
+        return user;
     }
 
     @Override
@@ -44,34 +44,9 @@ public class ReflectionORMDatabaseService implements IDatabaseService {
         throw new UnsupportedOperationException(MSG_NOT_IMPEMENTED);
     }
 
-    @Override
-    public void loadConfiguration(String configuartionFileName) {
-        settings.loadFromXML(configuartionFileName);
-    }
-
-    @Override
-    public void openConnection() {
-        closeConnection();
-        connection = ConnectionHelper.getConnection(settings.getHost(), settings.getPort(),
-                settings.getDatabseName(), settings.getLogin(), settings.getPassword());
-        dao = new ReflectionORMUsersDAO(connection);
-    }
-
-    @Override
-    public void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        connection = null;
-        dao = null;
-    }
 
     @Override
     public void close()  {
-        closeConnection();
+
     }
 }

@@ -7,12 +7,10 @@ import java.sql.Connection;
 public class ReflectionORMUsersDAO {
     private final Connection connection;
     private final IORM orm;
-    private IMetaData usersDataSetMetaData;
+    private final IMetaData usersDataSetMetaData;
 
-    public ReflectionORMUsersDAO(Connection connection) {
-        usersDataSetMetaData = new MetaData();
-        usersDataSetMetaData.read(UserDataSet.class);
-
+    public ReflectionORMUsersDAO(Connection connection, IMetaData usersDataSetMetaData) {
+        this.usersDataSetMetaData = usersDataSetMetaData;
         this.connection = connection;
         orm = new ORM(connection);
     }

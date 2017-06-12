@@ -43,9 +43,7 @@ public class Main {
             System.out.println(MSG_DATABASE_CREATION_FAILED);
         }
 
-        try (IDatabaseService service = new HibernateDatabaseService()) {
-            service.loadConfiguration(settingsXMLFN);
-            service.openConnection();
+        try (IDatabaseService service = new HibernateDatabaseService(settingsXMLFN)) {
 
             UserDataSet user = new UserDataSet(FIRST_USER_ID, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);

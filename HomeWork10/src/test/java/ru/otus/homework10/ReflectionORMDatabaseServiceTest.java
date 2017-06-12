@@ -33,9 +33,7 @@ public class ReflectionORMDatabaseServiceTest {
 
     @Test
     public void insertUserTest01() {
-        try(IDatabaseService service = new ReflectionORMDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new ReflectionORMDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = new UserDataSet(1L, TEST_USER_AGE, TEST_USER_NAME);
             service.save(user);
@@ -49,9 +47,7 @@ public class ReflectionORMDatabaseServiceTest {
 
     @Test
     public void insertUserTest02() {
-        try(IDatabaseService service = new ReflectionORMDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new ReflectionORMDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = new UserDataSet(null, TEST_USER_AGE, TEST_USER_NAME);
             service.save(user);
@@ -65,9 +61,7 @@ public class ReflectionORMDatabaseServiceTest {
 
     @Test
     public void updateUserTest02() {
-        try(IDatabaseService service = new ReflectionORMDatabaseService()) {
-            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
-            service.openConnection();
+        try(IDatabaseService service = new ReflectionORMDatabaseService(settings.getDefaultDbSettingsXmlFn())) {
 
             UserDataSet user = new UserDataSet(null, TEST_USER_AGE, TEST_USER_NAME);
             service.save(user);

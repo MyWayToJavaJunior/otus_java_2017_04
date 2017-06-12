@@ -35,7 +35,7 @@ public class UserDataSet {
         this.age = age;
         this.name = name;
         this.address = address;
-        this.phones = Arrays.asList(phones);
+        setPhones(Arrays.asList(phones));
     }
 
     public UserDataSet(Long id, int age, String name) {
@@ -100,7 +100,7 @@ public class UserDataSet {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (address != null ? !address.equals(that.address) : that.address != null) return false;
-        return phones != null ? phones.equals(that.phones) : that.phones == null;
+        return phones != null ? Arrays.equals(phones.toArray(), that.phones.toArray()) : that.phones == null;
     }
 
     @Override
