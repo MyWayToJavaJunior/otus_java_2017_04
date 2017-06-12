@@ -95,6 +95,27 @@ public class HibernateDatabaseServiceTest {
         }
     }
 
+    @Test
+    public void selectUsersTest() {
+        try(IDatabaseService service = new HibernateDatabaseService()) {
+            service.loadConfiguration(settings.getDefaultDbSettingsXmlFn());
+            service.openConnection();
+
+            List<UserDataSet> users = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                AddressDataSet address = new AddressDataSet("Street #" + i, 20 + i);
+                PhoneDataSet phone = new PhoneDataSet(8452, String.format("%d%d%d-%d%d%d", i, i + 1, i, i + 1, i + 2, i));
+                users.add(new UserDataSet(20 + i, "user #" + i, address, phone));
+                service.save(users.get(i));
+            }
+
+            List<UserDataSet> dbusers = service.readAll();
+            Assert.assertTrue(dbusers.equals(users));
+        } catch (SQLException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
     @AfterClass
     public static void dropDatabase() {
         DBSettings settings = DBSettings.getInstance();

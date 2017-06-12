@@ -2,6 +2,7 @@ package ru.otus.homework10.common.db.datasets;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -29,10 +30,12 @@ public class UserDataSet {
     public UserDataSet() {
     }
 
-    public UserDataSet(int age, String name, AddressDataSet address) {
+    public UserDataSet(int age, String name, AddressDataSet address, PhoneDataSet... phones) {
+        this.id = null;
         this.age = age;
         this.name = name;
         this.address = address;
+        this.phones = Arrays.asList(phones);
     }
 
     public UserDataSet(Long id, int age, String name) {

@@ -40,7 +40,7 @@ public class HibernateDatabaseService implements IDatabaseService {
 
     @Override
     public List<UserDataSet> readAll() {
-        throw new UnsupportedOperationException("Not implemented");
+        return dao.getAllUsers();
     }
 
     @Override
