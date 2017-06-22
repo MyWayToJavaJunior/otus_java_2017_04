@@ -91,7 +91,7 @@ public class ConnectionPool implements IConnectionPool{
 
     private class ConnectionForPool extends ConnectionForPoolBase {
         ConnectionForPool(ConnectionPool connectionPool, Connection connection) {
-            super(connectionPool, connection);
+            super(connection);
         }
 
         @Override

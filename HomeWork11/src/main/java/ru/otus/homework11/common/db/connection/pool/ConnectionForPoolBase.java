@@ -7,11 +7,9 @@ import java.util.concurrent.Executor;
 
 class ConnectionForPoolBase implements Connection {
 
-    private ConnectionPool connectionPool;
     private final Connection connection;
 
-    public ConnectionForPoolBase(ConnectionPool connectionPool, Connection connection) {
-        this.connectionPool = connectionPool;
+    public ConnectionForPoolBase(Connection connection) {
         this.connection = connection;
     }
 
