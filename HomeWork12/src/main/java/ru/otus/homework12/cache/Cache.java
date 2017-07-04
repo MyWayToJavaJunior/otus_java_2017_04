@@ -120,15 +120,24 @@ public class Cache<K, V> implements ICache<K, V>{
     }
 
     public void setMaximalLifeTime(long maximalLifeTime) {
+        boolean isNewValueGreaterOrEqual = this.maximalLifeTime <= maximalLifeTime;
         this.maximalLifeTime = maximalLifeTime;
+        if (!isNewValueGreaterOrEqual) {
+            removeUnused();
+        }
     }
 
     public void setMaximalIdleTime(long maximalIdleTime) {
+        boolean isNewValueGreaterOrEqual = this.maximalIdleTime <= maximalIdleTime;
         this.maximalIdleTime = maximalIdleTime;
+        if (!isNewValueGreaterOrEqual) {
+            removeUnused();
+        }
     }
 
     public void setMaximalSize(int maximalSize) {
         this.maximalSize = maximalSize;
+        removeUnusedIfMaxSize();
     }
 
     @Override
@@ -154,13 +163,11 @@ public class Cache<K, V> implements ICache<K, V>{
         }
 
         boolean isMustBeRemovedByLifeTime() {
-            boolean res = System.currentTimeMillis() - creationTime > maximalLifeTime;
-            return res;
+            return System.currentTimeMillis() - creationTime > maximalLifeTime;
         }
 
         boolean isMustBeRemovedByIdleTime() {
-            boolean res = System.currentTimeMillis() - lastUsageTime > maximalIdleTime;
-            return res;
+            return System.currentTimeMillis() - lastUsageTime > maximalIdleTime;
         }
 
         boolean isMustBeRemoved(){

@@ -36,7 +36,7 @@ public class AdminServlet extends HttpServlet{
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!server.auth(req, resp)){
+        if (!server.auth(req)){
             resp.setStatus(HttpServletResponse.SC_FOUND);
             resp.setHeader(CacheControlServer.HEADER_LOCATION, CacheControlServer.LOGIN_PAGE);
             return;

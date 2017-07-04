@@ -25,14 +25,14 @@ public class CacheControlServer {
     static final String ADMIN_PAGE = "/admin";
 
     private final static String PUBLIC_HTML = "public_html";
+    public static final String REQUEST_PARAM_LOGIN = "login";
+    public static final String REQUEST_PARAM_PASSWORD = "passw";
+    public static final String ALGORITHM_MD5 = "MD5";
 
     private Server server;
     private Map<String, String> registeredUsers;
-    private ICache cacheToControl;
 
     public CacheControlServer(ICache cacheToControl) {
-        this.cacheToControl = cacheToControl;
-
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setResourceBase(PUBLIC_HTML);
         resourceHandler.setDirAllowed(false);
@@ -52,9 +52,6 @@ public class CacheControlServer {
     public void stopServer(){
         try {
             server.stop();
-            while (!server.isStopped()) {
-                Thread.sleep(10);
-            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -68,20 +65,20 @@ public class CacheControlServer {
         server.join();
     }
 
-    boolean auth(HttpServletRequest req, HttpServletResponse resp) {
+    boolean auth(HttpServletRequest req) {
         String sessionID = req.getSession().getId();
         String sessionDigest = (String) req.getSession().getAttribute(SESSION_DGEST_KEY);
         if (sessionDigest != null){
             return registeredUsers.get(sessionID).equals(sessionDigest);
         }
         else {
-            return register(req, resp);
+            return register(req);
         }
     }
 
-    private boolean register(HttpServletRequest req, HttpServletResponse resp) {
-        String login = req.getParameter("login");
-        String passw = req.getParameter("passw");
+    private boolean register(HttpServletRequest req) {
+        String login = req.getParameter(REQUEST_PARAM_LOGIN);
+        String passw = req.getParameter(REQUEST_PARAM_PASSWORD);
 
         String digest = getDigest(login, passw);
         if (digest != null) {
@@ -94,16 +91,15 @@ public class CacheControlServer {
     private static String getDigest(String login, String passw) {
         if (login != null && passw != null) {
             try {
-                byte[] digest = MessageDigest.getInstance("MD5").digest((login + ":" + passw).getBytes());
+                byte[] digest = MessageDigest.getInstance(ALGORITHM_MD5).digest((login + ":" + passw).getBytes());
 
-                StringBuffer hexString = new StringBuffer();
+                StringBuilder hexString = new StringBuilder();
 
-                for (int i = 0; i < digest.length; i++) {
-                    if ((0xff & digest[i]) < 0x10) {
-                        hexString.append("0"
-                                + Integer.toHexString((0xFF & digest[i])));
+                for (byte aDigest : digest) {
+                    if ((0xff & aDigest) < 0x10) {
+                        hexString.append("0").append(Integer.toHexString((0xFF & aDigest)));
                     } else {
-                        hexString.append(Integer.toHexString(0xFF & digest[i]));
+                        hexString.append(Integer.toHexString(0xFF & aDigest));
                     }
                 }
                 return hexString.toString();

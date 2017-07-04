@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!server.auth(req, resp)){
+        if (!server.auth(req)){
             resp.getWriter().println(PageBuilder.getInstance().buildPage(LOGIN_PAGE_TEMPLATE, null));
             resp.setContentType("text/html;charset=utf-8");
             resp.setStatus(HttpServletResponse.SC_OK);
