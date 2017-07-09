@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+	<meta http-equiv="pragma" content="no-cache"/>
+    <title>Otus - cache control</title>
+	<link rel="shortcut icon" href ="favicon.png" typ e="image/x-icon" >
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+    <div class="main-container centrator">
+		<div class = "header">OTUS - HomeWork #13</div>
+		
+		
+		<div class = "cache-status-tab centrator">
+			<div class = "tab-header">Cache status</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell cache-status-first-column-cell">Cached objects count</div>
+				<div class = "cache-status-cell">${cachedObjectsCount}</div>
+			</div>
+			<div class = "cache-status-row">	
+				<div class = "cache-status-cell cache-status-first-column-cell">Number of hits</div>
+				<div class = "cache-status-cell">${numberOfHits}</div>
+			</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell cache-status-first-column-cell">Number of misses</div>
+				<div class = "cache-status-cell">${numberOfMisses}</div>
+			</div>
+		</div>
+		
+		<form action="/admin" method="POST" class = "cache-status-tab centrator">
+			<div class = "tab-header">Cache parameters</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell cache-status-first-column-cell">Maximal life time, ms</div>
+				<div class = "cache-status-cell"><input type = "number" name = "maximalLifeTime" value = #{maximalLifeTime} step = 100></div>
+			</div>
+			<div class = "cache-status-row">	
+				<div class = "cache-status-cell cache-status-first-column-cell">Maximal idle time, ms</div>
+				<div class = "cache-status-cell"><input type = "number" name = "maximalIdleTime" value = #{maximalIdleTime} step = 100></div>
+			</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell cache-status-first-column-cell">Maximal size</div>
+				<div class = "cache-status-cell"><input type = "number" name = "maximalSize" value = #{maximalSize} step = 5></div>
+			</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell"></div>
+				<div class = "cache-status-cell"><input type = "submit" value = "apply"></div>
+			</div>
+		</form> 
+	</div>
+</body>
+</html>
