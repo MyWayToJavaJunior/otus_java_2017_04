@@ -1,8 +1,36 @@
 package ru.otus.homework14;
 
+import ru.otus.homework14.sort.methods.*;
+
+import java.util.Arrays;
+
 public class Main {
+
+    private static final int TEST_ARRAY_ELEMENTS_COUNT = 8_000;
+
     public static void main(String[] args) {
-        Integer[] arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 2, 3, 5, 8, 7, 12, 0, 1, 13, 53, 35};
-        ArraysSorter.sort(arr);
+        int[] arr = ArraysHelper.randomArr(TEST_ARRAY_ELEMENTS_COUNT);
+        int[] tmpArr;
+        long l;
+
+        SortMethod bubbleSortMethod = new BubbleSortMethod();
+        SortMethod combSortMethod = new CombSortMethod();
+        SortMethod quickSortMethod = new QuickSortMethod();
+        SortMethod shellsSortMethod = new ShellsSortMethod();
+        ArraysSorter sorter = new ArraysSorter();
+
+        SortMethod method = bubbleSortMethod;
+
+        tmpArr = Arrays.copyOf(arr, arr.length);
+        l = System.currentTimeMillis();
+        sorter.sort(tmpArr, method);
+        l = System.currentTimeMillis() - l;
+        System.out.println("serial: " + l + "ms; sorted: " + ArraysHelper.isArraySorted(tmpArr));
+
+        tmpArr = Arrays.copyOf(arr, arr.length);
+        l = System.currentTimeMillis();
+        sorter.sortParallel(tmpArr, method);
+        l = System.currentTimeMillis() - l;
+        System.out.println("multithread: " + l + "ms; sorted: " + ArraysHelper.isArraySorted(tmpArr));
     }
 }
