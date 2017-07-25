@@ -1,0 +1,97 @@
+	body {
+		background: black;
+		margin-top: 50px;
+	}
+	
+	input[type = "text"], input[type = "password"] {
+		width: 150px;
+	}
+	
+	input[type = "submit"] {
+		width: 80px;
+	}
+	
+	.centrator {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	.main-container {		
+		width: 800px;
+		height: 600px;
+		background: linear-gradient(45deg, #1f2023, #35363B);
+		border-radius: 10px;
+	}
+	
+	.header{
+		background: url("../img/otus.png") no-repeat;
+		background-position: center 10px;
+		background-size: 50%;
+		padding-top: 170px;
+		font-size: 22pt;
+		color: #CC7832;
+		text-align: center;
+		margin-bottom: 10px;
+	}
+	
+	.login-form {
+		display: table;
+		border-spacing: 5px;
+		width: 250px;
+		text-align: center;
+		color: #77B767;
+	}
+	
+	.login-form-row{
+		text-align: right;
+		display: table-row;
+		margin-bottom: 50px;
+	}
+	
+	.login-form-cell{
+		display: table-cell;
+	}
+	
+	.login-form-first-column-cell{
+		width: 100px;
+		padding-right: 5px;
+	}
+	
+	a, a:hover, a:visited {
+		color: steelblue;
+		text-decoration: none;
+	}
+	
+	.tab-header {
+		display: table-caption;
+		color: steelblue;
+	}
+	
+	.tab-footer {
+		display: table-footer;	
+	}
+	
+	.cache-status-tab {
+		margin-top: 20px;
+		display: table;
+		border-spacing: 5px;
+		text-align: center;
+		color: #77B767;
+	}
+		
+	.cache-status-row{
+		text-align: right;
+		display: table-row;
+		margin-bottom: 50px;
+	}
+	
+	.cache-status-cell{
+		display: table-cell;
+	}
+	
+	.cache-status-first-column-cell{
+		width: 150px;
+		padding-right: 5px;
+	}
+	
+	
