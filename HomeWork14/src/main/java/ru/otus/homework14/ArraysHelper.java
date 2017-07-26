@@ -15,15 +15,10 @@ public class ArraysHelper {
 
     public static int[] randomArr(int elemsCnt) {
         Random random = new Random();
-        int[] a = new int[elemsCnt];
-        for (int i = 0; i < a.length; i++) {
-            a[i] = random.nextInt(elemsCnt);
-        }
-        return a;
+        return random.ints(0, elemsCnt).limit(elemsCnt).toArray();
     }
 
     public static int[] serialArr(int elemsCnt) {
-        Random random = new Random();
         int[] a = new int[elemsCnt];
         for (int i = 0; i < a.length; i++) {
             a[i] = i;

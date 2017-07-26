@@ -13,6 +13,10 @@ public class ArraysSorter {
     public void sortParallel(int[] a, SortMethod method) {
         int threadsCnt = 4;
         int partLen = a.length / threadsCnt;
+        if (a.length <= threadsCnt * 2) {
+            sort(a, method);
+            return;
+        }
 
         CountDownLatch latch = new CountDownLatch(threadsCnt);
 
