@@ -6,10 +6,9 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import ru.otus.homework15.cache.ICache;
-import ru.otus.homework15.server.websocket.WebSocketChatServlet;
+import ru.otus.homework15.server.websocket.AdminPageDataWebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -24,6 +23,7 @@ public class CacheControlServer {
 
     static final String LOGIN_PAGE = "/login";
     static final String ADMIN_PAGE = "/admin";
+    private static final String ADMIN_PAGE_DATA = "/admin_page_data";
 
     private final static String PUBLIC_HTML = "public_html";
     public static final String REQUEST_PARAM_LOGIN = "login";
@@ -41,7 +41,7 @@ public class CacheControlServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(new AdminServlet(this, cacheToControl)), ADMIN_PAGE);
         context.addServlet(new ServletHolder(new LoginServlet(this)), LOGIN_PAGE);
-        context.addServlet(WebSocketChatServlet.class, "/chat");
+        context.addServlet(AdminPageDataWebSocketServlet.class, ADMIN_PAGE_DATA);
 
 
         server = new Server(PORT);

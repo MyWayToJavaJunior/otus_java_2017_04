@@ -43,24 +43,9 @@ public class AdminServlet extends HttpServlet{
         }
         changeCacheParameters(cacheToControl, req);
 
-        Map<String, Object> pageVariables = createPageVariablesMap(cacheToControl);
-        resp.getWriter().println(PageBuilder.getInstance().buildPage(ADMIN_PAGE_TEMPLATE, pageVariables));
+        resp.getWriter().println(PageBuilder.getInstance().buildPage(ADMIN_PAGE_TEMPLATE, null));
         resp.setContentType("text/html;charset=utf-8");
         resp.setStatus(HttpServletResponse.SC_OK);
-    }
-
-    private static Map<String, Object> createPageVariablesMap(ICache cacheToControl){
-        Map<String, Object> variables = new HashMap<>();
-        if (cacheToControl == null) return variables;
-
-        variables.put(VARIABLE_CACHED_OBJECTS_COUNT, cacheToControl.getCachedObjectsCount());
-        variables.put(VARIABLE_NUMBER_OF_HITS, cacheToControl.getNumberOfHits());
-        variables.put(VARIABLE_NUMBER_OF_MISSES, cacheToControl.getNumberOfMisses());
-
-        variables.put(VARIABLE_MAXIMAL_LIFE_TIME, cacheToControl.getMaximalLifeTime());
-        variables.put(VARIABLE_MAXIMAL_IDLE_TIME, cacheToControl.getMaximalIdleTime());
-        variables.put(VARIABLE_MAXIMAL_SIZE, cacheToControl.getMaximalSize());
-        return variables;
     }
 
     private static void changeCacheParameters(ICache cacheToControl, HttpServletRequest req) {

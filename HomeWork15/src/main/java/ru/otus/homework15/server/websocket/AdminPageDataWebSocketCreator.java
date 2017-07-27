@@ -4,24 +4,20 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author v.chibrikov
- */
-public class ChatWebSocketCreator implements WebSocketCreator {
-    private Set<ChatWebSocket> users;
+public class AdminPageDataWebSocketCreator implements WebSocketCreator {
+    private Set<AdminPageDataWebSocket> connectedClients;
 
-    public ChatWebSocketCreator() {
-        this.users = Collections.newSetFromMap(new ConcurrentHashMap<ChatWebSocket, Boolean>());
+    public AdminPageDataWebSocketCreator() {
+        this.connectedClients = new HashSet<>();
         System.out.println("WebSocketCreator created");
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        ChatWebSocket socket = new ChatWebSocket(users);
+        AdminPageDataWebSocket socket = new AdminPageDataWebSocket(connectedClients);
         System.out.println("Socket created");
         return socket;
     }

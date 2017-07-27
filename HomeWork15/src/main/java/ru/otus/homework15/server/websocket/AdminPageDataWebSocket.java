@@ -9,19 +9,19 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import java.util.Set;
 
 @WebSocket
-public class ChatWebSocket {
-    private Set<ChatWebSocket> users;
+public class AdminPageDataWebSocket {
+    private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
 
-    public ChatWebSocket(Set<ChatWebSocket> users) {
-        this.users = users;
+    public AdminPageDataWebSocket(Set<AdminPageDataWebSocket> connectedClients) {
+        this.connectedClients = connectedClients;
     }
 
     @OnWebSocketMessage
     public void onMessage(String data) {
-        for (ChatWebSocket user : users) {
+        for (AdminPageDataWebSocket client : connectedClients) {
             try {
-                user.getSession().getRemote().sendString(data);
+                //client.getSession().getRemote().sendString(data);
                 System.out.println("Sending message: " + data);
             } catch (Exception e) {
                 System.out.print(e.toString());
@@ -31,9 +31,9 @@ public class ChatWebSocket {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-        users.add(this);
+        connectedClients.add(this);
         setSession(session);
-        System.out.println("onOpen");
+        System.out.println("onSocketOpen");
     }
 
     public Session getSession() {
@@ -46,7 +46,7 @@ public class ChatWebSocket {
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        users.remove(this);
-        System.out.println("onClose");
+        connectedClients.remove(this);
+        System.out.println("onSocketClose");
     }
 }
