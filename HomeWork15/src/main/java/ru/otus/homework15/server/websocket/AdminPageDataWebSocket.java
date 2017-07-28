@@ -9,19 +9,24 @@ import ru.otus.homework15.message.system.*;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @WebSocket
 public class AdminPageDataWebSocket implements MessageSystemMember{
+    private static final long CACHE_PARAMS_REQUEST_TIMER_INTERVAL = 1000;
     private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
-    private MessageSystem messageSystem;
+    private MessageSystemContext messageSystemContext;
     private Address address;
-    private Address dbServiceAddress;
+    private final Timer cacheParamsRequestTimer;
 
-    public AdminPageDataWebSocket(Set<AdminPageDataWebSocket> connectedClients, MessageSystem messageSystem, Address dbServiceAddress) {
+    private String lastResponse;
+
+    public AdminPageDataWebSocket(Set<AdminPageDataWebSocket> connectedClients, MessageSystemContext messageSystemContext) {
         this.connectedClients = connectedClients;
-        this.messageSystem = messageSystem;
-        this.dbServiceAddress = dbServiceAddress;
+        this.messageSystemContext = messageSystemContext;
+        cacheParamsRequestTimer = new Timer(true);
     }
 
     @OnWebSocketMessage
@@ -35,11 +40,14 @@ public class AdminPageDataWebSocket implements MessageSystemMember{
         setSession(session);
 
         address = new Address(this.toString());
-        messageSystem.addReciever(this);
+        cacheParamsRequestTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendCacheParamsRequest();
+            }
+        }, CACHE_PARAMS_REQUEST_TIMER_INTERVAL, CACHE_PARAMS_REQUEST_TIMER_INTERVAL);
 
-        sendCacheParamsRequest();
-
-        System.out.println("onSocketOpen");
+        messageSystemContext.getMessageSystem().addReciever(this);
     }
 
     public Session getSession() {
@@ -54,9 +62,7 @@ public class AdminPageDataWebSocket implements MessageSystemMember{
     public void onClose(int statusCode, String reason) {
         connectedClients.remove(this);
 
-        messageSystem.removeReceiver(this);
-
-        System.out.println("onSocketClose");
+        messageSystemContext.getMessageSystem().removeReceiver(this);
     }
 
     @Override
@@ -65,14 +71,16 @@ public class AdminPageDataWebSocket implements MessageSystemMember{
     }
 
     public void sendCacheParamsRequest() {
-        Message message = new CacheParamsRequestMessage(messageSystem, dbServiceAddress, address);
-        messageSystem.sendMessage(message);
-
+        Message message = new CacheParamsRequestMessage(messageSystemContext.getMessageSystem(), messageSystemContext.getDbServiceAddress(), address);
+        messageSystemContext.getMessageSystem().sendMessage(message);
     }
 
     public void processResponse(String response) {
         try {
-            session.getRemote().sendString(response);
+            if (lastResponse == null || !lastResponse.equals(response)) {
+                session.getRemote().sendString(response);
+                lastResponse = response;
+            }
         } catch (IOException e) {
         }
     }

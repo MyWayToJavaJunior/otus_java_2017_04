@@ -8,6 +8,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import ru.otus.homework15.cache.ICache;
 import ru.otus.homework15.message.system.Address;
 import ru.otus.homework15.message.system.MessageSystem;
+import ru.otus.homework15.message.system.MessageSystemContext;
 import ru.otus.homework15.server.websocket.AdminPageDataWebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class CacheControlServer {
     private Server server;
     private Map<String, String> registeredUsers;
 
-    public CacheControlServer(ICache cacheToControl, MessageSystem messageSystem, Address dbServiceAddress) {
+    public CacheControlServer(ICache cacheToControl, MessageSystemContext messageSystemContext) {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setResourceBase(PUBLIC_HTML);
         resourceHandler.setDirAllowed(false);
@@ -43,7 +44,7 @@ public class CacheControlServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(new AdminServlet(this, cacheToControl)), ADMIN_PAGE);
         context.addServlet(new ServletHolder(new LoginServlet(this)), LOGIN_PAGE);
-        context.addServlet(new ServletHolder(new AdminPageDataWebSocketServlet(messageSystem, dbServiceAddress)), ADMIN_PAGE_DATA);
+        context.addServlet(new ServletHolder(new AdminPageDataWebSocketServlet(messageSystemContext)), ADMIN_PAGE_DATA);
 
 
         server = new Server(PORT);

@@ -7,11 +7,13 @@ import ru.otus.homework15.common.db.datasets.UserDataSet;
 import ru.otus.homework15.common.db.DatabaseCreator;
 import ru.otus.homework15.message.system.Address;
 import ru.otus.homework15.message.system.MessageSystem;
+import ru.otus.homework15.message.system.MessageSystemContext;
 import ru.otus.homework15.reflection.orm.ReflectionORMDatabaseService;
 import ru.otus.homework15.server.CacheControlServer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Main {
 
@@ -29,33 +31,32 @@ public class Main {
     private static final int WRONG_USER_ID = 32;
 
     public static void main(String[] args) {
-
-        //Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
-
+        Logger logger = Logger.getAnonymousLogger();
         DBSettings settings = DBSettings.getInstance();
 
         String settingsXMLFN = settings.getDefaultDbSettingsXmlFn();
         settings.loadFromXML(settingsXMLFN);
 
-        System.out.println(settings.toString());
+        logger.info(settings.toString());
 
         if (!DatabaseCreator.dropHomework15Database(settings)) {
-            System.out.println(MSG_DATABASE_DROP_FAILED);
+            logger.severe(MSG_DATABASE_DROP_FAILED);
         }
 
         if (!DatabaseCreator.createHomework15Database(settings)) {
-            System.out.println(MSG_DATABASE_CREATION_FAILED);
+            logger.severe(MSG_DATABASE_CREATION_FAILED);
         }
 
         if (!DatabaseCreator.createUsersTable(settings)) {
-            System.out.println(MSG_USERS_TABLE_CREATION_FILED);
+            logger.severe(MSG_USERS_TABLE_CREATION_FILED);
         }
 
 
         Address dbServiceAddress = new Address("dbService01");
         MessageSystem messageSystem = new MessageSystem();
+        MessageSystemContext messageSystemContext = new MessageSystemContext(messageSystem, dbServiceAddress);
 
-        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, dbServiceAddress)) {
+        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, messageSystemContext)) {
             messageSystem.addReciever(service);
 
             messageSystem.start();
@@ -76,14 +77,13 @@ public class Main {
             service.save(user);
 
             UserDataSet firstUser = service.read(FIRST_USER_ID);
-            System.out.println(firstUser);
 
             service.read(FIRST_USER_ID);
             service.read(FIRST_USER_ID);
             service.read(WRONG_USER_ID);
 
 
-            CacheControlServer server = new CacheControlServer(service.getCache(), messageSystem, dbServiceAddress);
+            CacheControlServer server = new CacheControlServer(service.getCache(), messageSystemContext);
 
 
             try {
@@ -95,11 +95,7 @@ public class Main {
 
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.severe(e.getMessage());
         }
-
-        //if (!DatabaseCreator.dropHomework10Database(settings)) {
-        //    System.out.println(MSG_DATABASE_DROP_FAILED);
-        //}
     }
 }

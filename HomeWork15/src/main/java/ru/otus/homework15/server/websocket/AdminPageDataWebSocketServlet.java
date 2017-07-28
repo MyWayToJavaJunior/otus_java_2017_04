@@ -4,24 +4,23 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import ru.otus.homework15.message.system.Address;
 import ru.otus.homework15.message.system.MessageSystem;
+import ru.otus.homework15.message.system.MessageSystemContext;
 
 /**
  * This class represents a servlet starting a webSocket application
  */
 public class AdminPageDataWebSocketServlet extends WebSocketServlet {
     private final static int LOGOUT_TIME = 10 * 60 * 1000;
-    private final MessageSystem messageSystem;
-    private final Address dbServiceAddress;
+    private final MessageSystemContext messageSystemContext;
 
-    public AdminPageDataWebSocketServlet(MessageSystem messageSystem, Address dbServiceAddress) {
-        this.messageSystem = messageSystem;
-        this.dbServiceAddress = dbServiceAddress;
+    public AdminPageDataWebSocketServlet(MessageSystemContext messageSystemContext) {
+        this.messageSystemContext = messageSystemContext;
     }
 
 
     @Override
     public void configure(WebSocketServletFactory factory) {
         factory.getPolicy().setIdleTimeout(LOGOUT_TIME);
-        factory.setCreator(new AdminPageDataWebSocketCreator(messageSystem, dbServiceAddress));
+        factory.setCreator(new AdminPageDataWebSocketCreator(messageSystemContext));
     }
 }
