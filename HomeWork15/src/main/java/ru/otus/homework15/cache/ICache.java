@@ -15,4 +15,6 @@ public interface ICache<K, V> extends AutoCloseable{
     void setMaximalLifeTime(long maximalLifeTime);
     void setMaximalIdleTime(long maximalIdleTime);
     void setMaximalSize(int maximalSize);
+
+    String toJSONString();
 }

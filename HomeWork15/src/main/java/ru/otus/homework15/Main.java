@@ -1,24 +1,17 @@
 package ru.otus.homework15;
 
-import org.eclipse.jetty.server.Server;
-import ru.otus.homework15.cache.Cache;
 import ru.otus.homework15.common.db.datasets.AddressDataSet;
 import ru.otus.homework15.common.db.DBSettings;
 import ru.otus.homework15.common.db.datasets.PhoneDataSet;
 import ru.otus.homework15.common.db.datasets.UserDataSet;
 import ru.otus.homework15.common.db.DatabaseCreator;
-import ru.otus.homework15.common.db.IDatabaseService;
 import ru.otus.homework15.message.system.Address;
-import ru.otus.homework15.message.system.CacheParamsRequestMessageSender;
-import ru.otus.homework15.message.system.MessageSender;
 import ru.otus.homework15.message.system.MessageSystem;
 import ru.otus.homework15.reflection.orm.ReflectionORMDatabaseService;
 import ru.otus.homework15.server.CacheControlServer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Main {
 
@@ -60,18 +53,12 @@ public class Main {
 
 
         Address dbServiceAddress = new Address("dbService01");
-        Address messageSenderAddress = new Address("messageSender01");
         MessageSystem messageSystem = new MessageSystem();
 
         try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, dbServiceAddress)) {
-
-            CacheParamsRequestMessageSender messageSender = new CacheParamsRequestMessageSender(messageSenderAddress, dbServiceAddress, messageSystem);
             messageSystem.addReciever(service);
-            messageSystem.addSender(messageSender);
 
             messageSystem.start();
-
-            messageSender.sendCacheParamsRequestMessage();
 
             UserDataSet user = new UserDataSet(null, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);
@@ -95,7 +82,8 @@ public class Main {
             service.read(FIRST_USER_ID);
             service.read(WRONG_USER_ID);
 
-            CacheControlServer server = new CacheControlServer(service.getCache());
+
+            CacheControlServer server = new CacheControlServer(service.getCache(), messageSystem, dbServiceAddress);
 
 
             try {
@@ -104,6 +92,7 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
 
         } catch (Exception e) {
             System.err.println(e.getMessage());

@@ -1,6 +1,6 @@
 package ru.otus.homework15.message.system;
 
-public class Message {
+public abstract class Message {
     private Address receiver;
     private Address sender;
 
@@ -17,7 +17,5 @@ public class Message {
         return sender;
     }
 
-    public void onDeliver(MessageReceiver receiver) {
-
-    }
+    public abstract void onDeliver(MessageSystemMember receiver);
 }

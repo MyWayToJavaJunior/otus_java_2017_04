@@ -7,13 +7,13 @@ import ru.otus.homework15.common.db.connection.pool.ConnectionPool;
 import ru.otus.homework15.common.db.datasets.UserDataSet;
 import ru.otus.homework15.common.db.IDatabaseService;
 import ru.otus.homework15.message.system.Address;
-import ru.otus.homework15.message.system.MessageReceiver;
+import ru.otus.homework15.message.system.MessageSystemMember;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ReflectionORMDatabaseService implements IDatabaseService, MessageReceiver {
+public class ReflectionORMDatabaseService implements IDatabaseService, MessageSystemMember {
     private static final String MSG_NOT_IMPEMENTED = "Not impemented";
 
     private Address address;

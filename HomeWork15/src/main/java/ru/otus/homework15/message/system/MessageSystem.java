@@ -9,15 +9,11 @@ public class MessageSystem {
     public static final int DEFAULT_SLEEP_TIME = 10;
     private boolean started = false;
 
-    private final Map<Address, MessageReceiver> receivers = new ConcurrentHashMap<>();
-    private final Map<Address, MessageSender> senders = new ConcurrentHashMap<>();
+    private final Map<Address, MessageSystemMember> receivers = new ConcurrentHashMap<>();
     private final Map<Address, ConcurrentLinkedQueue<Message>> messagesQueues = new ConcurrentHashMap<>();
     private final Map<Address, Thread> messagesProcessingThreads = new ConcurrentHashMap<>();
 
-    public void addReciever(MessageReceiver receiver) {
-        receivers.put(receiver.getAddress(), receiver);
-        messagesQueues.put(receiver.getAddress(), new ConcurrentLinkedQueue<>());
-
+    private Thread createReceiverThread(MessageSystemMember receiver) {
         Thread t = new Thread(()-> {
             while (true) {
                 try {
@@ -33,6 +29,14 @@ public class MessageSystem {
             }
         });
         t.setDaemon(true);
+        return t;
+    }
+
+    public void addReciever(MessageSystemMember receiver) {
+        receivers.put(receiver.getAddress(), receiver);
+        messagesQueues.put(receiver.getAddress(), new ConcurrentLinkedQueue<>());
+
+        Thread t = createReceiverThread(receiver);
         messagesProcessingThreads.put(receiver.getAddress(), t);
         if (started) t.start();
     }
@@ -47,19 +51,11 @@ public class MessageSystem {
         }
     }
 
-    public void removeReceiver(MessageReceiver receiver) {
+    public void removeReceiver(MessageSystemMember receiver) {
         Thread t = messagesProcessingThreads.get(receiver.getAddress());
         stopThread(t);
         receivers.remove(receiver.getAddress());
         messagesQueues.remove(receiver.getAddress());
-    }
-
-    public void addSender(MessageSender sender) {
-        senders.put(sender.getAddress(), sender);
-    }
-
-    public void removeSender(MessageSender sender) {
-        senders.remove(sender.getAddress());
     }
 
     public void sendMessage(Message message) {

@@ -1,19 +1,35 @@
 package ru.otus.homework15.cache;
 
+import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
+
 import java.lang.ref.SoftReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Cache<K, V> implements ICache<K, V>{
+
     public static final long DEFAULT_CACHED_OBJECT_LIFE_TIME = 1000 * 60 * 10;
     public static final long DEFAULT_CACHED_OBJECT_IDLE_TIME = 1000 * 60 * 5;
     public static final int DEFAULT_CACHE_MAX_SIZE = 1000;
 
+    private static final String JSON_PROP_CACHED_OBJECTS_COUNT = "cachedObjectsCount";
+    private static final String JSON_PROP_NUMBER_OF_HITS = "numberOfHits";
+    private static final String JSON_PROP_NUMBER_OF_MISSES = "numberOfMisses";
+    private static final String JSON_PROP_MAXIMAL_LIFE_TIME = "maximalLifeTime";
+    private static final String JSON_PROP_MAXIMAL_IDLE_TIME = "maximalIdleTime";
+    private static final String JSON_PROP_MAXIMAL_SIZE = "maximalSize";
+
+    @Expose
     private long maximalLifeTime;
+    @Expose
     private long maximalIdleTime;
+    @Expose
     private int maximalSize;
 
+    @Expose
     private int numberOfHits;
+    @Expose
     private int numberOfMisses;
 
     private boolean timerWorking;
@@ -138,6 +154,20 @@ public class Cache<K, V> implements ICache<K, V>{
     public void setMaximalSize(int maximalSize) {
         this.maximalSize = maximalSize;
         removeUnusedIfMaxSize();
+    }
+
+    @Override
+    public String toJSONString() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty(JSON_PROP_CACHED_OBJECTS_COUNT, this.getCachedObjectsCount());
+        jsonObject.addProperty(JSON_PROP_NUMBER_OF_HITS, this.getNumberOfHits());
+        jsonObject.addProperty(JSON_PROP_NUMBER_OF_MISSES, this.getNumberOfMisses());
+
+        jsonObject.addProperty(JSON_PROP_MAXIMAL_LIFE_TIME, this.getMaximalLifeTime());
+        jsonObject.addProperty(JSON_PROP_MAXIMAL_IDLE_TIME, this.getMaximalIdleTime());
+        jsonObject.addProperty(JSON_PROP_MAXIMAL_SIZE, this.getMaximalSize());
+
+        return jsonObject.toString();
     }
 
     @Override
