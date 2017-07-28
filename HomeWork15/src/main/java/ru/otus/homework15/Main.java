@@ -1,12 +1,17 @@
 package ru.otus.homework15;
 
 import org.eclipse.jetty.server.Server;
+import ru.otus.homework15.cache.Cache;
 import ru.otus.homework15.common.db.datasets.AddressDataSet;
 import ru.otus.homework15.common.db.DBSettings;
 import ru.otus.homework15.common.db.datasets.PhoneDataSet;
 import ru.otus.homework15.common.db.datasets.UserDataSet;
 import ru.otus.homework15.common.db.DatabaseCreator;
 import ru.otus.homework15.common.db.IDatabaseService;
+import ru.otus.homework15.message.system.Address;
+import ru.otus.homework15.message.system.CacheParamsRequestMessageSender;
+import ru.otus.homework15.message.system.MessageSender;
+import ru.otus.homework15.message.system.MessageSystem;
 import ru.otus.homework15.reflection.orm.ReflectionORMDatabaseService;
 import ru.otus.homework15.server.CacheControlServer;
 
@@ -31,7 +36,8 @@ public class Main {
     private static final int WRONG_USER_ID = 32;
 
     public static void main(String[] args) {
-        Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+
+        //Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 
         DBSettings settings = DBSettings.getInstance();
 
@@ -52,7 +58,20 @@ public class Main {
             System.out.println(MSG_USERS_TABLE_CREATION_FILED);
         }
 
-        try (IDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN)) {
+
+        Address dbServiceAddress = new Address("dbService01");
+        Address messageSenderAddress = new Address("messageSender01");
+        MessageSystem messageSystem = new MessageSystem();
+
+        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, dbServiceAddress)) {
+
+            CacheParamsRequestMessageSender messageSender = new CacheParamsRequestMessageSender(messageSenderAddress, dbServiceAddress, messageSystem);
+            messageSystem.addReciever(service);
+            messageSystem.addSender(messageSender);
+
+            messageSystem.start();
+
+            messageSender.sendCacheParamsRequestMessage();
 
             UserDataSet user = new UserDataSet(null, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);
@@ -86,10 +105,9 @@ public class Main {
                 e.printStackTrace();
             }
 
-        } catch (Exception e ) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-
 
         //if (!DatabaseCreator.dropHomework10Database(settings)) {
         //    System.out.println(MSG_DATABASE_DROP_FAILED);
