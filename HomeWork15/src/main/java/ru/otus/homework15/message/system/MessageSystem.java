@@ -1,19 +1,22 @@
 package ru.otus.homework15.message.system;
 
+import ru.otus.homework15.message.system.base.IMessageSystem;
+import ru.otus.homework15.message.system.base.IMessageSystemMember;
+import ru.otus.homework15.message.system.base.Message;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class MessageSystem {
+public class MessageSystem implements IMessageSystem {
     public static final int DEFAULT_SLEEP_TIME = 10;
     private boolean started = false;
 
-    private final Map<Address, MessageSystemMember> receivers = new ConcurrentHashMap<>();
+    private final Map<Address, IMessageSystemMember> receivers = new ConcurrentHashMap<>();
     private final Map<Address, ConcurrentLinkedQueue<Message>> messagesQueues = new ConcurrentHashMap<>();
     private final Map<Address, Thread> messagesProcessingThreads = new ConcurrentHashMap<>();
 
-    private Thread createReceiverThread(MessageSystemMember receiver) {
+    private Thread createReceiverThread(IMessageSystemMember receiver) {
         Thread t = new Thread(()-> {
             while (true) {
                 try {
@@ -32,7 +35,7 @@ public class MessageSystem {
         return t;
     }
 
-    public void addReciever(MessageSystemMember receiver) {
+    public void addReciever(IMessageSystemMember receiver) {
         receivers.put(receiver.getAddress(), receiver);
         messagesQueues.put(receiver.getAddress(), new ConcurrentLinkedQueue<>());
 
@@ -51,7 +54,7 @@ public class MessageSystem {
         }
     }
 
-    public void removeReceiver(MessageSystemMember receiver) {
+    public void removeReceiver(IMessageSystemMember receiver) {
         Thread t = messagesProcessingThreads.get(receiver.getAddress());
         stopThread(t);
         receivers.remove(receiver.getAddress());

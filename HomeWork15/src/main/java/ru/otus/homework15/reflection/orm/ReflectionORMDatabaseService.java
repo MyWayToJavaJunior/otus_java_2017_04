@@ -8,13 +8,13 @@ import ru.otus.homework15.common.db.datasets.UserDataSet;
 import ru.otus.homework15.common.db.IDatabaseService;
 import ru.otus.homework15.message.system.Address;
 import ru.otus.homework15.message.system.MessageSystemContext;
-import ru.otus.homework15.message.system.MessageSystemMember;
+import ru.otus.homework15.message.system.base.IMessageSystemMember;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ReflectionORMDatabaseService implements IDatabaseService, MessageSystemMember {
+public class ReflectionORMDatabaseService implements IDatabaseService, IMessageSystemMember {
     private static final String MSG_NOT_IMPEMENTED = "Not impemented";
 
     private final MessageSystemContext messageSystemContext;

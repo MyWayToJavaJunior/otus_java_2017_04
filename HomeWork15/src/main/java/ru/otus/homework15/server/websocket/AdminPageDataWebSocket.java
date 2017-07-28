@@ -6,6 +6,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import ru.otus.homework15.message.system.*;
+import ru.otus.homework15.message.system.base.IMessageSystemMember;
+import ru.otus.homework15.message.system.base.Message;
+import ru.otus.homework15.server.websocket.messages.CacheParamsRequestMessage;
 
 import java.io.IOException;
 import java.util.Set;
@@ -13,7 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @WebSocket
-public class AdminPageDataWebSocket implements MessageSystemMember{
+public class AdminPageDataWebSocket implements IMessageSystemMember {
     private static final long CACHE_PARAMS_REQUEST_TIMER_INTERVAL = 1000;
     private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
@@ -31,7 +34,6 @@ public class AdminPageDataWebSocket implements MessageSystemMember{
 
     @OnWebSocketMessage
     public void onMessage(String data) {
-        System.out.println("onMessage");
     }
 
     @OnWebSocketConnect

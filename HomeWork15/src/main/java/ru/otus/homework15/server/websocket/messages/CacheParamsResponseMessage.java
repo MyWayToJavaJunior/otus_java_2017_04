@@ -1,5 +1,8 @@
-package ru.otus.homework15.message.system;
+package ru.otus.homework15.server.websocket.messages;
 
+import ru.otus.homework15.message.system.Address;
+import ru.otus.homework15.message.system.base.Message;
+import ru.otus.homework15.message.system.base.IMessageSystemMember;
 import ru.otus.homework15.server.websocket.AdminPageDataWebSocket;
 
 public class CacheParamsResponseMessage extends Message {
@@ -11,7 +14,7 @@ public class CacheParamsResponseMessage extends Message {
     }
 
     @Override
-    public void onDeliver(MessageSystemMember receiver) {
+    public void onDeliver(IMessageSystemMember receiver) {
         if (receiver instanceof AdminPageDataWebSocket){
             onDeliver((AdminPageDataWebSocket)receiver);
         }

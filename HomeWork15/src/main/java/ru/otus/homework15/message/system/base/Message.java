@@ -1,4 +1,6 @@
-package ru.otus.homework15.message.system;
+package ru.otus.homework15.message.system.base;
+
+import ru.otus.homework15.message.system.Address;
 
 public abstract class Message {
     private Address receiver;
@@ -17,5 +19,5 @@ public abstract class Message {
         return sender;
     }
 
-    public abstract void onDeliver(MessageSystemMember receiver);
+    public abstract void onDeliver(IMessageSystemMember receiver);
 }

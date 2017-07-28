@@ -1,8 +1,12 @@
-package ru.otus.homework15.message.system;
+package ru.otus.homework15.server.websocket.messages;
 
 import ru.otus.homework15.common.db.IDatabaseService;
+import ru.otus.homework15.message.system.Address;
+import ru.otus.homework15.message.system.base.Message;
+import ru.otus.homework15.message.system.MessageSystem;
+import ru.otus.homework15.message.system.base.IMessageSystemMember;
 
-public class CacheParamsRequestMessage extends Message{
+public class CacheParamsRequestMessage extends Message {
     private MessageSystem messageSystem;
 
     public CacheParamsRequestMessage(MessageSystem messageSystem, Address receiver, Address sender) {
@@ -11,7 +15,7 @@ public class CacheParamsRequestMessage extends Message{
     }
 
     @Override
-    public void onDeliver(MessageSystemMember receiver) {
+    public void onDeliver(IMessageSystemMember receiver) {
         if (receiver instanceof IDatabaseService) {
             onDeliver((IDatabaseService)receiver);
         }
