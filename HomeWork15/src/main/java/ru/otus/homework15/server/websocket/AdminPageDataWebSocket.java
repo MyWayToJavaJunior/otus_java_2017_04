@@ -6,9 +6,8 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import ru.otus.homework15.message.system.*;
-import ru.otus.homework15.message.system.base.IMessageSystemMember;
-import ru.otus.homework15.message.system.base.Message;
-import ru.otus.homework15.server.websocket.messages.CacheParamsRequestMessage;
+import ru.otus.homework15.message.system.base.IMessageReceiver;
+import ru.otus.homework15.message.system.base.IRequestService;
 
 import java.io.IOException;
 import java.util.Set;
@@ -16,19 +15,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @WebSocket
-public class AdminPageDataWebSocket implements IMessageSystemMember {
+public class AdminPageDataWebSocket implements IMessageReceiver {
     private static final long CACHE_PARAMS_REQUEST_TIMER_INTERVAL = 1000;
     private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
-    private MessageSystemContext messageSystemContext;
+    private IRequestService requestService;
     private Address address;
     private final Timer cacheParamsRequestTimer;
 
     private String lastResponse;
 
-    public AdminPageDataWebSocket(Set<AdminPageDataWebSocket> connectedClients, MessageSystemContext messageSystemContext) {
+    public AdminPageDataWebSocket(Set<AdminPageDataWebSocket> connectedClients, IRequestService requestService) {
         this.connectedClients = connectedClients;
-        this.messageSystemContext = messageSystemContext;
+        this.requestService = requestService;
         cacheParamsRequestTimer = new Timer(true);
     }
 
@@ -42,14 +41,14 @@ public class AdminPageDataWebSocket implements IMessageSystemMember {
         setSession(session);
 
         address = new Address(this.toString());
+        requestService.addInnerReciever(this);
+
         cacheParamsRequestTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                sendCacheParamsRequest();
+                requestService.sendRequest(getAddress());
             }
         }, CACHE_PARAMS_REQUEST_TIMER_INTERVAL, CACHE_PARAMS_REQUEST_TIMER_INTERVAL);
-
-        messageSystemContext.getMessageSystem().addReciever(this);
     }
 
     public Session getSession() {
@@ -62,19 +61,17 @@ public class AdminPageDataWebSocket implements IMessageSystemMember {
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
+        cacheParamsRequestTimer.cancel();
+        cacheParamsRequestTimer.purge();
+
         connectedClients.remove(this);
 
-        messageSystemContext.getMessageSystem().removeReceiver(this);
+        requestService.removeInnerReceiver(this.getAddress());
     }
 
     @Override
     public Address getAddress() {
         return address;
-    }
-
-    public void sendCacheParamsRequest() {
-        Message message = new CacheParamsRequestMessage(messageSystemContext.getMessageSystem(), messageSystemContext.getDbServiceAddress(), address);
-        messageSystemContext.getMessageSystem().sendMessage(message);
     }
 
     public void processResponse(String response) {

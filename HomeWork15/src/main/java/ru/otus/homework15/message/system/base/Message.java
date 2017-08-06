@@ -19,5 +19,5 @@ public abstract class Message {
         return sender;
     }
 
-    public abstract void onDeliver(IMessageSystemMember receiver);
+    public abstract void onDeliver(IMessageReceiver receiver);
 }

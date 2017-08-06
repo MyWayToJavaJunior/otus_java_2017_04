@@ -4,18 +4,20 @@ import ru.otus.homework15.common.db.IDatabaseService;
 import ru.otus.homework15.message.system.Address;
 import ru.otus.homework15.message.system.base.Message;
 import ru.otus.homework15.message.system.MessageSystem;
-import ru.otus.homework15.message.system.base.IMessageSystemMember;
+import ru.otus.homework15.message.system.base.IMessageReceiver;
 
 public class CacheParamsRequestMessage extends Message {
     private MessageSystem messageSystem;
+    private final Address innerSender;
 
-    public CacheParamsRequestMessage(MessageSystem messageSystem, Address receiver, Address sender) {
+    public CacheParamsRequestMessage(MessageSystem messageSystem, Address receiver, Address sender, Address innerSender) {
         super(receiver, sender);
         this.messageSystem = messageSystem;
+        this.innerSender = innerSender;
     }
 
     @Override
-    public void onDeliver(IMessageSystemMember receiver) {
+    public void onDeliver(IMessageReceiver receiver) {
         if (receiver instanceof IDatabaseService) {
             onDeliver((IDatabaseService)receiver);
         }
@@ -23,7 +25,7 @@ public class CacheParamsRequestMessage extends Message {
 
     public void onDeliver(IDatabaseService service) {
         String json = service.getCache().toJSONString();
-        Message message = new CacheParamsResponseMessage(json, getSender(), getReceiver());
+        Message message = new CacheParamsResponseMessage(json, getSender(), innerSender, getReceiver());
         messageSystem.sendMessage(message);
     }
 }

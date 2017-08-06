@@ -1,7 +1,7 @@
 package ru.otus.homework15.message.system;
 
 import ru.otus.homework15.message.system.base.IMessageSystem;
-import ru.otus.homework15.message.system.base.IMessageSystemMember;
+import ru.otus.homework15.message.system.base.IMessageReceiver;
 import ru.otus.homework15.message.system.base.Message;
 
 import java.util.Map;
@@ -12,18 +12,16 @@ public class MessageSystem implements IMessageSystem {
     public static final int DEFAULT_SLEEP_TIME = 10;
     private boolean started = false;
 
-    private final Map<Address, IMessageSystemMember> receivers = new ConcurrentHashMap<>();
-    private final Map<Address, ConcurrentLinkedQueue<Message>> messagesQueues = new ConcurrentHashMap<>();
-    private final Map<Address, Thread> messagesProcessingThreads = new ConcurrentHashMap<>();
+    private final Map<Address, MessageSystemReceiverContext> receiverContextMap = new ConcurrentHashMap<>();
 
-    private Thread createReceiverThread(IMessageSystemMember receiver) {
+    private Thread createReceiverThread(Address receiverAddress) {
         Thread t = new Thread(()-> {
             while (true) {
                 try {
-                    ConcurrentLinkedQueue<Message> receiverQueue = messagesQueues.get(receiver.getAddress());
+                    ConcurrentLinkedQueue<Message> receiverQueue = receiverContextMap.get(receiverAddress).getMessagesQueue();
                     while (!receiverQueue.isEmpty()) {
                         Message message = receiverQueue.poll();
-                        message.onDeliver(receiver);
+                        message.onDeliver(receiverContextMap.get(receiverAddress).getReceiver());
                     }
                     Thread.sleep(DEFAULT_SLEEP_TIME);
                 } catch (InterruptedException e) {
@@ -35,12 +33,12 @@ public class MessageSystem implements IMessageSystem {
         return t;
     }
 
-    public void addReciever(IMessageSystemMember receiver) {
-        receivers.put(receiver.getAddress(), receiver);
-        messagesQueues.put(receiver.getAddress(), new ConcurrentLinkedQueue<>());
+    public void addReciever(IMessageReceiver receiver) {
+        Thread t = createReceiverThread(receiver.getAddress());
 
-        Thread t = createReceiverThread(receiver);
-        messagesProcessingThreads.put(receiver.getAddress(), t);
+        MessageSystemReceiverContext receiverContext = new MessageSystemReceiverContext(receiver, t);
+        receiverContextMap.put(receiver.getAddress(), receiverContext);
+
         if (started) t.start();
     }
 
@@ -54,30 +52,53 @@ public class MessageSystem implements IMessageSystem {
         }
     }
 
-    public void removeReceiver(IMessageSystemMember receiver) {
-        Thread t = messagesProcessingThreads.get(receiver.getAddress());
+    public void removeReceiver(IMessageReceiver receiver) {
+        Thread t = receiverContextMap.get(receiver.getAddress()).getThread();
         stopThread(t);
-        receivers.remove(receiver.getAddress());
-        messagesQueues.remove(receiver.getAddress());
+        receiverContextMap.remove(receiver.getAddress());
     }
 
     public void sendMessage(Message message) {
-        ConcurrentLinkedQueue<Message> receiverQueue = messagesQueues.get(message.getReceiver());
+        ConcurrentLinkedQueue<Message> receiverQueue = receiverContextMap.get(message.getReceiver()).getMessagesQueue();
         if (receiverQueue != null) receiverQueue.add(message);
     }
 
     public void stop() {
-        for (Thread t : messagesProcessingThreads.values()) {
-            stopThread(t);
+        for (Map.Entry<Address, MessageSystemReceiverContext> c : receiverContextMap.entrySet()) {
+            stopThread(c.getValue().getThread());
         }
         started = false;
     }
 
     public void start() {
-        for (Thread t : messagesProcessingThreads.values()) {
-            t.start();
+        for (Map.Entry<Address, MessageSystemReceiverContext> c : receiverContextMap.entrySet()) {
+            c.getValue().getThread().start();
         }
         started = true;
+    }
+
+    private class MessageSystemReceiverContext {
+        private final IMessageReceiver receiver;
+        private final ConcurrentLinkedQueue<Message> messagesQueue;
+        private final Thread thread;
+
+        public MessageSystemReceiverContext(IMessageReceiver receiver, Thread thread) {
+            this.receiver = receiver;
+            this.messagesQueue = new ConcurrentLinkedQueue<>();
+            this.thread = thread;
+        }
+
+        public IMessageReceiver getReceiver() {
+            return receiver;
+        }
+
+        public ConcurrentLinkedQueue<Message> getMessagesQueue() {
+            return messagesQueue;
+        }
+
+        public Thread getThread() {
+            return thread;
+        }
     }
 
 }

@@ -10,6 +10,7 @@ import ru.otus.homework15.message.system.MessageSystem;
 import ru.otus.homework15.message.system.MessageSystemContext;
 import ru.otus.homework15.reflection.orm.ReflectionORMDatabaseService;
 import ru.otus.homework15.server.CacheControlServer;
+import ru.otus.homework15.server.websocket.WebsocketRequestService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,12 @@ public class Main {
 
         Address dbServiceAddress = new Address("dbService01");
         MessageSystem messageSystem = new MessageSystem();
+
         MessageSystemContext messageSystemContext = new MessageSystemContext(messageSystem, dbServiceAddress);
+
+        Address websocketRequestServiceAddress = new Address("websocketRequestService");
+        WebsocketRequestService websocketRequestService = new WebsocketRequestService(websocketRequestServiceAddress, messageSystemContext);
+        messageSystem.addReciever(websocketRequestService);
 
         try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, messageSystemContext)) {
             messageSystem.addReciever(service);
@@ -83,7 +89,7 @@ public class Main {
             service.read(WRONG_USER_ID);
 
 
-            CacheControlServer server = new CacheControlServer(service.getCache(), messageSystemContext);
+            CacheControlServer server = new CacheControlServer(service.getCache(), websocketRequestService);
 
 
             try {
