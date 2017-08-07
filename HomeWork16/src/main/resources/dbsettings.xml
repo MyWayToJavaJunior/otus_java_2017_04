@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <property name = "host" value = "localhost"/>
+    <property name = "port" value = "3306"/>
+    <property name = "database" value = "homework16"/>
+    <property name = "username" value = "anyuser"/>
+    <property name = "password" value = "anyuser3310"/>
+</settings>
