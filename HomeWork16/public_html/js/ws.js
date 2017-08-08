@@ -48,4 +48,11 @@
 		return ws;
 	};
 
+    function changeCacheParametersValues(socket) {
+        var query = '{ "maximalLifeTime": "' + document.getElementById("maximalLifeTime").value + '"' +
+                    ', "maximalIdleTime": "' + document.getElementById("maximalIdleTime").value + '"' +
+                    ', "maximalSize": "' + document.getElementById("maximalSize").value + '"}';
+        socket.send(query);
+    }
+
 	var socket = createWebSocket(); 

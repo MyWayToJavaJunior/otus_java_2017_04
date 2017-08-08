@@ -1,9 +1,10 @@
-package ru.otus.homework16.server.websocket.messages;
+package ru.otus.homework16.webserver.websocket.messages;
 
 import ru.otus.homework16.message.system.Address;
 import ru.otus.homework16.message.system.base.IRequestService;
 import ru.otus.homework16.message.system.base.Message;
 import ru.otus.homework16.message.system.base.IMessageReceiver;
+import ru.otus.homework16.message.system.MessageChannel;
 
 public class CacheParamsResponseMessage extends Message {
     private String response;
@@ -17,14 +18,14 @@ public class CacheParamsResponseMessage extends Message {
     }
 
     @Override
-    public void onDeliver(IMessageReceiver receiver) {
+    public void onDeliver(MessageChannel channel, IMessageReceiver receiver) {
         if (receiver instanceof IRequestService){
-            onDeliver((IRequestService)receiver);
+            onDeliver(channel, (IRequestService)receiver);
         }
     }
 
-    public void onDeliver(IRequestService receiver) {
-        receiver.processResponse(innerReceiver, response);
+    public void onDeliver(MessageChannel channel, IRequestService receiver) {
+        receiver.processCacheParamsRequestResponse(innerReceiver, response);
 
     }
 }

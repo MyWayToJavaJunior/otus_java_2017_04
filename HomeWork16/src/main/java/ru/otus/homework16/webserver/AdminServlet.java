@@ -1,4 +1,4 @@
-package ru.otus.homework16.server;
+package ru.otus.homework16.webserver;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -6,11 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class LoginServlet extends HttpServlet {
-    private static final String LOGIN_PAGE_TEMPLATE = "login_page_template.html";
+public class AdminServlet extends HttpServlet{
+    private static final String ADMIN_PAGE_TEMPLATE = "admin_page_template.html";
+
     private final CacheControlServer server;
 
-    public LoginServlet(CacheControlServer server) {
+    public AdminServlet(CacheControlServer server) {
         this.server = server;
     }
 
@@ -22,12 +23,13 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!server.auth(req)){
-            resp.getWriter().println(PageBuilder.getInstance().buildPage(LOGIN_PAGE_TEMPLATE, null));
-            resp.setContentType("text/html;charset=utf-8");
-            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.setStatus(HttpServletResponse.SC_FOUND);
+            resp.setHeader(CacheControlServer.HEADER_LOCATION, CacheControlServer.LOGIN_PAGE);
             return;
         }
-        resp.setStatus(HttpServletResponse.SC_FOUND);
-        resp.setHeader(CacheControlServer.HEADER_LOCATION, CacheControlServer.ADMIN_PAGE);
+
+        resp.getWriter().println(PageBuilder.getInstance().buildPage(ADMIN_PAGE_TEMPLATE, null));
+        resp.setContentType("text/html;charset=utf-8");
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

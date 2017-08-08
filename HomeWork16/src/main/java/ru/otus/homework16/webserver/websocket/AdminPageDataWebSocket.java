@@ -1,5 +1,7 @@
-package ru.otus.homework16.server.websocket;
+package ru.otus.homework16.webserver.websocket;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -17,6 +19,11 @@ import java.util.TimerTask;
 @WebSocket
 public class AdminPageDataWebSocket implements IMessageReceiver {
     private static final long CACHE_PARAMS_REQUEST_TIMER_INTERVAL = 1000;
+    private static final String VARIABLE_MAXIMAL_LIFE_TIME = "maximalLifeTime";
+    private static final String VARIABLE_MAXIMAL_IDLE_TIME = "maximalIdleTime";
+    private static final String VARIABLE_MAXIMAL_SIZE = "maximalSize";
+
+
     private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
     private IRequestService requestService;
@@ -33,6 +40,13 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
 
     @OnWebSocketMessage
     public void onMessage(String data) {
+        JsonParser parser = new JsonParser();
+        JsonObject object = parser.parse(data).getAsJsonObject();
+        long maximalLifeTime = object.get(VARIABLE_MAXIMAL_LIFE_TIME).getAsLong();
+        long maximalIdleTime = object.get(VARIABLE_MAXIMAL_IDLE_TIME).getAsLong();
+        int maximalSize = object.get(VARIABLE_MAXIMAL_SIZE).getAsInt();
+
+        requestService.sendCacheParamsChangeRequest(getAddress(), maximalLifeTime, maximalIdleTime, maximalSize);
     }
 
     @OnWebSocketConnect
@@ -46,7 +60,7 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
         cacheParamsRequestTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                requestService.sendRequest(getAddress());
+                requestService.sendCacheParamsRequest(getAddress());
             }
         }, CACHE_PARAMS_REQUEST_TIMER_INTERVAL, CACHE_PARAMS_REQUEST_TIMER_INTERVAL);
     }

@@ -6,18 +6,21 @@ import ru.otus.homework16.common.db.datasets.PhoneDataSet;
 import ru.otus.homework16.common.db.datasets.UserDataSet;
 import ru.otus.homework16.common.db.DatabaseCreator;
 import ru.otus.homework16.message.system.Address;
-import ru.otus.homework16.message.system.MessageSystem;
-import ru.otus.homework16.message.system.MessageSystemContext;
+import ru.otus.homework16.message.system.base.Message;
 import ru.otus.homework16.reflection.orm.ReflectionORMDatabaseService;
-import ru.otus.homework16.server.CacheControlServer;
-import ru.otus.homework16.server.websocket.WebsocketRequestService;
+import ru.otus.homework16.message.system.RegisterMessage;
+import ru.otus.homework16.message.system.SocketClientChannel;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-public class Main {
+public class DBServiceMain {
 
+    private static final Logger logger = Logger.getLogger(DBServiceMain.class.getName());
     private static final String FIRST_USER_NAME = "Igor";
     private static final int FIRST_USER_AGE = 13;
     private static final long FIRST_USER_ID = 1L;
@@ -32,7 +35,6 @@ public class Main {
     private static final int WRONG_USER_ID = 32;
 
     public static void main(String[] args) {
-        Logger logger = Logger.getAnonymousLogger();
         DBSettings settings = DBSettings.getInstance();
 
         String settingsXMLFN = settings.getDefaultDbSettingsXmlFn();
@@ -52,20 +54,7 @@ public class Main {
             logger.severe(MSG_USERS_TABLE_CREATION_FILED);
         }
 
-
-        Address dbServiceAddress = new Address("dbService01");
-        MessageSystem messageSystem = new MessageSystem();
-
-        MessageSystemContext messageSystemContext = new MessageSystemContext(messageSystem, dbServiceAddress);
-
-        Address websocketRequestServiceAddress = new Address("websocketRequestService");
-        WebsocketRequestService websocketRequestService = new WebsocketRequestService(websocketRequestServiceAddress, messageSystemContext);
-        messageSystem.addReciever(websocketRequestService);
-
-        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, messageSystemContext)) {
-            messageSystem.addReciever(service);
-
-            messageSystem.start();
+        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, new Address(ServersConsts.DB_SERVICE_ADDRESS_01))) {
 
             UserDataSet user = new UserDataSet(null, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);
@@ -88,17 +77,25 @@ public class Main {
             service.read(FIRST_USER_ID);
             service.read(WRONG_USER_ID);
 
+            Socket socket = new Socket(ServersConsts.MESSAGE_SYSTEM_SERVER_HOST, ServersConsts.MESSAGE_SYSTEM_SERVER_PORT);
+            SocketClientChannel clientChannel = new SocketClientChannel(socket);
+            clientChannel.init();
 
-            CacheControlServer server = new CacheControlServer(service.getCache(), websocketRequestService);
+            RegisterMessage registerMessage = new RegisterMessage(null, service.getAddress(), true);
+            clientChannel.send(registerMessage);
 
-
-            try {
-                server.startServer();
-                server.join();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(() -> {
+                while (!executor.isShutdown()) {
+                    try {
+                        logger.info("Message received");
+                        Message message = clientChannel.take();
+                        message.onDeliver(clientChannel, service);
+                    } catch (InterruptedException e) {
+                        logger.severe(e.getMessage());
+                    }
+                }
+            });
 
         } catch (Exception e) {
             logger.severe(e.getMessage());

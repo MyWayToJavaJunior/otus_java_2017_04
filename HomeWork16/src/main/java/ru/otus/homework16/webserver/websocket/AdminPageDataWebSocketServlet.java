@@ -1,4 +1,4 @@
-package ru.otus.homework16.server.websocket;
+package ru.otus.homework16.webserver.websocket;
 
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;

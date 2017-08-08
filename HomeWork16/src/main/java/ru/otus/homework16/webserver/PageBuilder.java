@@ -1,4 +1,4 @@
-package ru.otus.homework16.server;
+package ru.otus.homework16.webserver;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;

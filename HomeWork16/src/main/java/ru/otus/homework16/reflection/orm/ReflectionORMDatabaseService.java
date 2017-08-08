@@ -7,7 +7,6 @@ import ru.otus.homework16.common.db.connection.pool.ConnectionPool;
 import ru.otus.homework16.common.db.datasets.UserDataSet;
 import ru.otus.homework16.common.db.IDatabaseService;
 import ru.otus.homework16.message.system.Address;
-import ru.otus.homework16.message.system.MessageSystemContext;
 import ru.otus.homework16.message.system.base.IMessageReceiver;
 
 import java.sql.Connection;
@@ -17,15 +16,15 @@ import java.util.List;
 public class ReflectionORMDatabaseService implements IDatabaseService, IMessageReceiver {
     private static final String MSG_NOT_IMPEMENTED = "Not impemented";
 
-    private final MessageSystemContext messageSystemContext;
+    private final Address address;
     private final DBSettings settings;
     private final IMetaData usersDataSetMetaData;
     private final Cache<Long, UserDataSet> cache;
     private final ConnectionPool connectionPool;
 
 
-    public ReflectionORMDatabaseService(String configuartionFileName, MessageSystemContext messageSystemContext) {
-        this.messageSystemContext = messageSystemContext;
+    public ReflectionORMDatabaseService(String configuartionFileName, Address address) {
+        this.address = address;
 
         settings = DBSettings.getInstance();
         settings.loadFromXML(configuartionFileName);
@@ -79,6 +78,6 @@ public class ReflectionORMDatabaseService implements IDatabaseService, IMessageR
 
     @Override
     public Address getAddress() {
-        return messageSystemContext.getDbServiceAddress();
+        return address;
     }
 }
