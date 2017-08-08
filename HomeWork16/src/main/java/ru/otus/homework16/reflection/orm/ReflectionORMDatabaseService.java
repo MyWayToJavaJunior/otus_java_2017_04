@@ -23,11 +23,10 @@ public class ReflectionORMDatabaseService implements IDatabaseService, IMessageR
     private final ConnectionPool connectionPool;
 
 
-    public ReflectionORMDatabaseService(String configuartionFileName, Address address) {
+    public ReflectionORMDatabaseService(DBSettings settings, Address address) {
         this.address = address;
 
-        settings = DBSettings.getInstance();
-        settings.loadFromXML(configuartionFileName);
+        this.settings = settings;
         usersDataSetMetaData = new MetaData();
         usersDataSetMetaData.read(UserDataSet.class);
 

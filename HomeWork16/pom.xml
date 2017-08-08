@@ -143,6 +143,26 @@
                             <goal>assembly</goal>
                         </goals>
                     </execution>
+
+                    <execution>
+                        <id>build-d</id>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>ru.otus.homework16.Launcher</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>Launcher</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

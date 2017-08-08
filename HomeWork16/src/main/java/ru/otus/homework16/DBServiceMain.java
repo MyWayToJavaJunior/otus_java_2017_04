@@ -37,8 +37,7 @@ public class DBServiceMain {
     public static void main(String[] args) {
         DBSettings settings = DBSettings.getInstance();
 
-        String settingsXMLFN = settings.getDefaultDbSettingsXmlFn();
-        settings.loadFromXML(settingsXMLFN);
+        settings.loadFromDefaultXMLResourceFile();
 
         logger.info(settings.toString());
 
@@ -54,7 +53,7 @@ public class DBServiceMain {
             logger.severe(MSG_USERS_TABLE_CREATION_FILED);
         }
 
-        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settingsXMLFN, new Address(ServersConsts.DB_SERVICE_ADDRESS_01))) {
+        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settings, new Address(ServersConsts.DB_SERVICE_ADDRESS_01))) {
 
             UserDataSet user = new UserDataSet(null, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);

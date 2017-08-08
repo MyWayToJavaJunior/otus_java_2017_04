@@ -6,6 +6,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.*;
 import java.io.File;
+import java.io.InputStream;
 
 public class DBSettings {
     private static final String DEFAULT_DB_SETTINGS_XML_FN = "dbsettings.xml";
@@ -65,9 +66,22 @@ public class DBSettings {
     }
 
     public String getDefaultDbSettingsXmlFn() {
-        return this.getClass().getClassLoader().getResource(DBSettings.DEFAULT_DB_SETTINGS_XML_FN).getFile();
+        String fileName = this.getClass().getClassLoader().getResource(DBSettings.DEFAULT_DB_SETTINGS_XML_FN).getFile();
+        System.out.println(fileName);
+        return fileName;
+
     }
 
+    public void loadFromDefaultXMLResourceFile() {
+
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(DBSettings.DEFAULT_DB_SETTINGS_XML_FN)) {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            saxParser.parse(is, new DBSettingsHandler());
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }    }
 
     public void loadFromXML(File xmlFile) {
         try {
