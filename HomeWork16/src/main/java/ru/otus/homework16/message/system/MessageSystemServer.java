@@ -1,15 +1,15 @@
 package ru.otus.homework16.message.system;
 
 import ru.otus.homework16.ServersConsts;
+import ru.otus.homework16.message.system.base.IAddressableMessageChannel;
 import ru.otus.homework16.message.system.base.IMessageReceiver;
 import ru.otus.homework16.message.system.base.Message;
+import ru.otus.homework16.message.system.base.IMessageChannel;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,13 +25,11 @@ public class MessageSystemServer implements IMessageReceiver{
     private final Address address;
 
     private final ExecutorService executor;
-    private final List<MessageChannel> channels;
-    private final Map<Address, MessageChannel> receivers;
+    private final List<IAddressableMessageChannel> channels;
 
     public MessageSystemServer(Address address) {
         executor = Executors.newFixedThreadPool(THREADS_NUMBER);
         channels = new CopyOnWriteArrayList<>();
-        receivers = new ConcurrentHashMap<>();
         this.address = address;
     }
 
@@ -43,20 +41,37 @@ public class MessageSystemServer implements IMessageReceiver{
             logger.info("Server started on port: " + serverSocket.getLocalPort());
             while (!executor.isShutdown()) {
                 Socket client = serverSocket.accept();
-                SocketClientChannel channel = new SocketClientChannel(client);
-                channel.init();
-                channel.addShutdownRegistration(() -> channels.remove(channel));
-                channels.add(channel);
+
+                SocketClientChannel socketClientChannel = new SocketClientChannel(client);
+                IAddressableMessageChannel addressableMessageChannel = new AddressableMessageChannel(socketClientChannel);
+                channels.add(addressableMessageChannel);
+
+                socketClientChannel.init();
+                socketClientChannel.addShutdownRegistration(() -> channels.remove(addressableMessageChannel));
             }
         }
     }
 
-    public void registerReceiver(MessageChannel channel, RegisterMessage message) {
-        if (message.isRegister()) {
-            logger.info("registerReceiver: " + message.getSender());
-            receivers.put(message.getSender(), channel);
+    private IAddressableMessageChannel findChannel(Address address) {
+        for (IAddressableMessageChannel receiverChannel : channels) {
+            Address receiverChannelAddress = receiverChannel.getAddress();
+            if (receiverChannelAddress != null && receiverChannelAddress.equals(address)) {
+                return receiverChannel;
+            }
         }
-        else if (channel.equals(receivers.get(message.getSender()))) {
+        return null;
+    }
+
+    public void registerReceiver(IAddressableMessageChannel channel, RegisterMessage message) {
+        if (message == null || channel == null) return;
+
+        IAddressableMessageChannel existingChannel = findChannel(message.getSender());
+
+        if (message.isRegister() && existingChannel == null) {
+            logger.info("registerReceiver: " + message.getSender());
+            channel.setAddress(message.getSender());
+        }
+        else if (existingChannel != null || channel.getAddress().equals(message.getSender())) {
             try {
                 channel.close();
             } catch (IOException e) {
@@ -68,14 +83,14 @@ public class MessageSystemServer implements IMessageReceiver{
     @SuppressWarnings("InfiniteLoopStatement")
     private void processMessages() {
         while (true) {
-            for (MessageChannel channel : channels) {
+            for (IMessageChannel channel : channels) {
                 Message msg = channel.pool(); //get
                 if (msg != null) {
                     logger.info("Message received");
                     if (msg instanceof RegisterMessage) {
                         msg.onDeliver(channel, this);
                     } else {
-                        MessageChannel receiverChannel = receivers.get(msg.getReceiver());
+                        IAddressableMessageChannel receiverChannel = findChannel(msg.getReceiver());
                         if (receiverChannel != null) {
                             logger.info("Message sended to " + msg.getReceiver());
                             receiverChannel.send(msg);

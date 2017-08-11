@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.otus.homework16.message.system.base.Message;
+import ru.otus.homework16.message.system.base.IMessageChannel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,9 +17,10 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SocketClientChannel implements MessageChannel {
+public class SocketClientChannel implements IMessageChannel {
     private static final Logger logger = Logger.getLogger(SocketClientChannel.class.getName());
     private static final int WORKERS_COUNT = 2;
+    private static final int DEFAULT_THREAD_SLEEP_TIME = 100;
 
     private final BlockingQueue<Message> output = new LinkedBlockingQueue<>();
     private final BlockingQueue<Message> input = new LinkedBlockingQueue<>();
@@ -36,6 +38,10 @@ public class SocketClientChannel implements MessageChannel {
     public void init() {
         executor.execute(this::sendMessage);
         executor.execute(this::receiveMessage);
+    }
+
+    public boolean isConnected() {
+        return !socket.isClosed();
     }
 
     public void addShutdownRegistration(Runnable runnable) {
@@ -72,11 +78,14 @@ public class SocketClientChannel implements MessageChannel {
 
     private void sendMessage() {
         try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-            while (socket.isConnected()) {
-                Message msg = output.take(); //blocks
-                String json = new Gson().toJson(msg);
-                out.println(json);
-                out.println(); //end of message
+            while (!socket.isClosed()) {
+                Message msg = output.poll(); //blocks
+                if (msg != null) {
+                    String json = new Gson().toJson(msg);
+                    out.println(json);
+                    out.println(); //end of message
+                }
+                Thread.sleep(DEFAULT_THREAD_SLEEP_TIME);
             }
         } catch (InterruptedException | IOException e) {
             logger.log(Level.SEVERE, e.getMessage());
@@ -100,6 +109,13 @@ public class SocketClientChannel implements MessageChannel {
 
     @Override
     public void close() {
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage());
+        }
+
         shutdownRegistrations.forEach(Runnable::run);
         shutdownRegistrations.clear();
 

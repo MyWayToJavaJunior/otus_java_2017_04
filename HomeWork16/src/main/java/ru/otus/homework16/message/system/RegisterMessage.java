@@ -1,7 +1,9 @@
 package ru.otus.homework16.message.system;
 
+import ru.otus.homework16.message.system.base.IAddressableMessageChannel;
 import ru.otus.homework16.message.system.base.IMessageReceiver;
 import ru.otus.homework16.message.system.base.Message;
+import ru.otus.homework16.message.system.base.IMessageChannel;
 
 public class RegisterMessage extends Message{
     private final boolean register;
@@ -12,13 +14,13 @@ public class RegisterMessage extends Message{
     }
 
     @Override
-    public void onDeliver(MessageChannel channel, IMessageReceiver receiver) {
-        if (receiver instanceof MessageSystemServer) {
-            onDeliver(channel, (MessageSystemServer) receiver);
+    public void onDeliver(IMessageChannel channel, IMessageReceiver receiver) {
+        if (receiver instanceof MessageSystemServer && channel instanceof IAddressableMessageChannel) {
+            onDeliver((IAddressableMessageChannel)channel, (MessageSystemServer) receiver);
         }
     }
 
-    public void onDeliver(MessageChannel channel, MessageSystemServer server) {
+    public void onDeliver(IAddressableMessageChannel channel, MessageSystemServer server) {
         server.registerReceiver(channel, this);
     }
 

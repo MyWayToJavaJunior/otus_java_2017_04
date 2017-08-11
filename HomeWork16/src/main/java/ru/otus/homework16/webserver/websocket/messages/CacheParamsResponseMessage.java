@@ -4,7 +4,7 @@ import ru.otus.homework16.message.system.Address;
 import ru.otus.homework16.message.system.base.IRequestService;
 import ru.otus.homework16.message.system.base.Message;
 import ru.otus.homework16.message.system.base.IMessageReceiver;
-import ru.otus.homework16.message.system.MessageChannel;
+import ru.otus.homework16.message.system.base.IMessageChannel;
 
 public class CacheParamsResponseMessage extends Message {
     private String response;
@@ -18,13 +18,13 @@ public class CacheParamsResponseMessage extends Message {
     }
 
     @Override
-    public void onDeliver(MessageChannel channel, IMessageReceiver receiver) {
+    public void onDeliver(IMessageChannel channel, IMessageReceiver receiver) {
         if (receiver instanceof IRequestService){
             onDeliver(channel, (IRequestService)receiver);
         }
     }
 
-    public void onDeliver(MessageChannel channel, IRequestService receiver) {
+    public void onDeliver(IMessageChannel channel, IRequestService receiver) {
         receiver.processCacheParamsRequestResponse(innerReceiver, response);
 
     }

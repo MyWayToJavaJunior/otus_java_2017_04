@@ -33,6 +33,7 @@ public class DBServiceMain {
     private static final int FIRST_USER_MAIL_INDEX = 17;
     private static final String MSG_USERS_TABLE_CREATION_FILED = "Users table creation filed";
     private static final int WRONG_USER_ID = 32;
+    private static final int DEFAULT_SLEEP_TIME = 100;
 
     public static void main(String[] args) {
         DBSettings settings = DBSettings.getInstance();
@@ -87,11 +88,21 @@ public class DBServiceMain {
             executor.submit(() -> {
                 while (!executor.isShutdown()) {
                     try {
-                        logger.info("Message received");
-                        Message message = clientChannel.take();
-                        message.onDeliver(clientChannel, service);
+                        Message message = clientChannel.pool();
+                        if (message != null) {
+                            logger.info("Message received");
+                            message.onDeliver(clientChannel, service);
+                        }
+
+                        if (!clientChannel.isConnected()) {
+                            executor.shutdown();
+                        }
+
+                        Thread.sleep(DEFAULT_SLEEP_TIME);
+
                     } catch (InterruptedException e) {
                         logger.severe(e.getMessage());
+                        executor.shutdown();
                     }
                 }
             });

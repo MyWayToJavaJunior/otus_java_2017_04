@@ -1,11 +1,9 @@
-package ru.otus.homework16.message.system;
-
-import ru.otus.homework16.message.system.base.Message;
+package ru.otus.homework16.message.system.base;
 
 import java.io.IOException;
 
 
-public interface MessageChannel {
+public interface IMessageChannel {
     void send(Message msg);
 
     Message pool();

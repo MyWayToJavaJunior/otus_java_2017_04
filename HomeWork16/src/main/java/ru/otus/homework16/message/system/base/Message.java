@@ -1,7 +1,6 @@
 package ru.otus.homework16.message.system.base;
 
 import ru.otus.homework16.message.system.Address;
-import ru.otus.homework16.message.system.MessageChannel;
 
 public abstract class Message {
 
@@ -29,5 +28,5 @@ public abstract class Message {
         return className;
     }
 
-    public abstract void onDeliver(MessageChannel channel, IMessageReceiver receiver);
+    public abstract void onDeliver(IMessageChannel channel, IMessageReceiver receiver);
 }
