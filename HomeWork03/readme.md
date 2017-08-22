@@ -1,10 +1,10 @@
-Задание
+п»їР—Р°РґР°РЅРёРµ
 ----
-Написать свою реализацию ArrayList на основе массива.
+РќР°РїРёСЃР°С‚СЊ СЃРІРѕСЋ СЂРµР°Р»РёР·Р°С†РёСЋ ArrayList РЅР° РѕСЃРЅРѕРІРµ РјР°СЃСЃРёРІР°.
 class MyArrayList<T> implements List<T>{...}
 
-Проверить, что на ней работают методы
-• addAll(Collection<? super T> c, T... elements)
-• static <T> void copy(List<? super T> dest, List<? extends T> src)
-• static <T> void sort(List<T> list, Comparator<? super T> c)
-из java.util.Collections
+РџСЂРѕРІРµСЂРёС‚СЊ, С‡С‚Рѕ РЅР° РЅРµР№ СЂР°Р±РѕС‚Р°СЋС‚ РјРµС‚РѕРґС‹
+вЂў addAll(Collection<? super T> c, T... elements)
+вЂў static <T> void copy(List<? super T> dest, List<? extends T> src)
+вЂў static <T> void sort(List<T> list, Comparator<? super T> c)
+РёР· java.util.Collections
