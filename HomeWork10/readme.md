@@ -1,21 +1,20 @@
-Задание
+п»їР—Р°РґР°РЅРёРµ
 ----
-1. Доделать задание 9.
-2. Оформить решение в виде DBService (interface DBService, class DBServiceImpl, UsersDAO, UsersDataSet, Executor)
-3. Не меняя интерфейс DBSerivice сделать DBServiceHibernateImpl на Hibernate.
-4. Добавить в UsersDataSet 
+1. Р”РѕРґРµР»Р°С‚СЊ Р·Р°РґР°РЅРёРµ 9.
+2. РћС„РѕСЂРјРёС‚СЊ СЂРµС€РµРЅРёРµ РІ РІРёРґРµ DBService (interface DBService, class DBServiceImpl, UsersDAO, UsersDataSet, Executor)
+3. РќРµ РјРµРЅСЏСЏ РёРЅС‚РµСЂС„РµР№СЃ DBSerivice СЃРґРµР»Р°С‚СЊ DBServiceHibernateImpl РЅР° Hibernate.
+4. Р”РѕР±Р°РІРёС‚СЊ РІ UsersDataSet 
 
-class AddressDataSet{
-	private String street;
-	private int index;
+class AddressDataSet{  
+ private String street;  
+ private int index;  
 } (OneToOne)
-
-и телефон
-
-class PhoneDataSet{
-	private int code;
-	private String number;
-}
-(OneToMany).
-
-Добавить соответствущие датасеты и DAO. 
+  
+Рё С‚РµР»РµС„РѕРЅ  
+  
+class PhoneDataSet{  
+ private int code;  
+ private String number;  
+} (OneToMany).  
+  
+Р”РѕР±Р°РІРёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓС‰РёРµ РґР°С‚Р°СЃРµС‚С‹ Рё DAO. 
