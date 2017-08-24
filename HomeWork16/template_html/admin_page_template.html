@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,19 @@
 		
 		
 		<div class = "cache-status-tab centrator">
-			<div class = "tab-header" id = "cache-status-header">Cache status..loading</div>
+			<div class = "cache-status-row">
+				<div class = "cache-status-cell cache-status-first-column-cell tab-header">DB service address</div>
+				<div class = "cache-status-cell">
+					<select id = "dBServiceAddress" onchange = "onChangeDBServiceAddress(socket)">
+						<option selected value = "">none</option>
+						<option value = "dbService01">DB service #1</option>
+						<option value = "dbService02">DB service #2</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class = "cache-status-tab centrator">
+			<div class = "tab-header" id = "cache-status-header">Cache status..empty</div>
 			<div class = "cache-status-row">
 				<div class = "cache-status-cell cache-status-first-column-cell">Cached objects count</div>
 				<div class = "cache-status-cell" id = "cachedObjectsCount">0</div>
@@ -31,7 +43,7 @@
 		</div>
 		
 		<form action="/admin" method="POST" class = "cache-status-tab centrator">
-			<div class = "tab-header" id = "cache-parameters-header">Cache parameters..loading</div>
+			<div class = "tab-header" id = "cache-parameters-header">Cache parameters..empty</div>
 			<div class = "cache-status-row">
 				<div class = "cache-status-cell cache-status-first-column-cell">Maximal life time, ms</div>
 				<div class = "cache-status-cell"><input type = "number" name = "maximalLifeTime" id = "maximalLifeTime" value = "0" step = 100></div>

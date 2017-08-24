@@ -36,6 +36,9 @@ public class DBServiceMain {
     private static final int DEFAULT_SLEEP_TIME = 100;
 
     public static void main(String[] args) {
+        String ID = ServersConsts.DB_SERVICE_ADDRESS_01;
+        if (args.length > 0) ID = args[0];
+
         DBSettings settings = DBSettings.getInstance();
 
         settings.loadFromDefaultXMLResourceFile();
@@ -54,7 +57,7 @@ public class DBServiceMain {
             logger.severe(MSG_USERS_TABLE_CREATION_FILED);
         }
 
-        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settings, new Address(ServersConsts.DB_SERVICE_ADDRESS_01))) {
+        try (ReflectionORMDatabaseService service = new ReflectionORMDatabaseService(settings, new Address(ID))) {
 
             UserDataSet user = new UserDataSet(null, FIRST_USER_AGE, FIRST_USER_NAME);
             service.save(user);

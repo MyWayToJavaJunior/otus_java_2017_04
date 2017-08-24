@@ -100,18 +100,22 @@ public class Launcher {
     public static void main(String[] args) {
         Launcher messageSystemServer = new Launcher();
         Launcher cacheControlServer = new Launcher();
-        Launcher dbService = new Launcher();
+        Launcher dbService01 = new Launcher();
+        Launcher dbService02 = new Launcher();
         try {
             messageSystemServer.start(MESSAGE_SYSTEM_SERVER_RUN_COMMAND);
             sleep(SLEEP_INTERVAL);
 
-            dbService.start(DB_SERVICE_RUN_COMMAND);
+            dbService01.start(DB_SERVICE_RUN_COMMAND + " " + ServersConsts.DB_SERVICE_ADDRESS_01);
+            sleep(SLEEP_INTERVAL);
+
+            dbService02.start(DB_SERVICE_RUN_COMMAND + " " + ServersConsts.DB_SERVICE_ADDRESS_02);
             sleep(SLEEP_INTERVAL);
 
             cacheControlServer.start(CACHE_CONTROL_SERVER_RUN_COMMAND);
 
             messageSystemServer.waitFor();
-            dbService.waitFor();
+            dbService01.waitFor();
             cacheControlServer.waitFor();
 
         } catch (IOException e) {

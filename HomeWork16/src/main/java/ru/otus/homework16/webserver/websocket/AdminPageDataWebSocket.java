@@ -22,12 +22,18 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
     private static final String VARIABLE_MAXIMAL_LIFE_TIME = "maximalLifeTime";
     private static final String VARIABLE_MAXIMAL_IDLE_TIME = "maximalIdleTime";
     private static final String VARIABLE_MAXIMAL_SIZE = "maximalSize";
+    private static final String VARIABLE_COMMAND = "command";
+    private static final String COMMAND_CHANGE_CACHE_PARAMETERS_VALUES = "changeCacheParametersValues";
+    private static final String COMMAND_SUBSCRIBE = "subscribe";
+    private static final String VARIABLE_NEW_DB_SERVICE_ADDRESS_ID = "newDBServiceAddressID";
 
 
     private Set<AdminPageDataWebSocket> connectedClients;
     private Session session;
     private IRequestService requestService;
     private Address address;
+    private Address dbServiceAddress;
+
     private final Timer cacheParamsRequestTimer;
 
     private String lastResponse;
@@ -42,11 +48,19 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
     public void onMessage(String data) {
         JsonParser parser = new JsonParser();
         JsonObject object = parser.parse(data).getAsJsonObject();
-        long maximalLifeTime = object.get(VARIABLE_MAXIMAL_LIFE_TIME).getAsLong();
-        long maximalIdleTime = object.get(VARIABLE_MAXIMAL_IDLE_TIME).getAsLong();
-        int maximalSize = object.get(VARIABLE_MAXIMAL_SIZE).getAsInt();
+        String command = object.get(VARIABLE_COMMAND).getAsString();
 
-        requestService.sendCacheParamsChangeRequest(getAddress(), maximalLifeTime, maximalIdleTime, maximalSize);
+        if (command.equals(COMMAND_CHANGE_CACHE_PARAMETERS_VALUES)) {
+            long maximalLifeTime = object.get(VARIABLE_MAXIMAL_LIFE_TIME).getAsLong();
+            long maximalIdleTime = object.get(VARIABLE_MAXIMAL_IDLE_TIME).getAsLong();
+            int maximalSize = object.get(VARIABLE_MAXIMAL_SIZE).getAsInt();
+
+            requestService.sendCacheParamsChangeRequest(getAddress(), maximalLifeTime, maximalIdleTime, maximalSize);
+        }
+        else if (command.equals(COMMAND_SUBSCRIBE)) {
+            String newDBServiceAddressID = object.get(VARIABLE_NEW_DB_SERVICE_ADDRESS_ID).getAsString();
+            dbServiceAddress = new Address(newDBServiceAddressID);
+        }
     }
 
     @OnWebSocketConnect
@@ -60,7 +74,9 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
         cacheParamsRequestTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                requestService.sendCacheParamsRequest(getAddress());
+                if (dbServiceAddress != null) {
+                    requestService.sendCacheParamsRequest(getAddress());
+                }
             }
         }, CACHE_PARAMS_REQUEST_TIMER_INTERVAL, CACHE_PARAMS_REQUEST_TIMER_INTERVAL);
     }
@@ -86,6 +102,10 @@ public class AdminPageDataWebSocket implements IMessageReceiver {
     @Override
     public Address getAddress() {
         return address;
+    }
+
+    public Address getDbServiceAddress() {
+        return dbServiceAddress;
     }
 
     public void processResponse(String response) {

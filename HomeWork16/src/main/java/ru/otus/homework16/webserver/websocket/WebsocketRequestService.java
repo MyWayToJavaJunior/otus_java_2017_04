@@ -22,14 +22,12 @@ public class WebsocketRequestService implements IMessageReceiver, IRequestServic
     private static final Logger logger = Logger.getLogger(WebsocketRequestService.class.getName());
 
     private final Address address;
-    private final Address dbServiceAddress;
 
     private final Map<Address, AdminPageDataWebSocket> innerReceivers;
     private SocketClientChannel clientChannel;
 
-    public WebsocketRequestService(Address address, Address dbServiceAddress) {
+    public WebsocketRequestService(Address address) {
         this.address = address;
-        this.dbServiceAddress = dbServiceAddress;
         innerReceivers = new ConcurrentHashMap<>();
     }
 
@@ -81,8 +79,12 @@ public class WebsocketRequestService implements IMessageReceiver, IRequestServic
 
     @Override
     public void sendCacheParamsRequest(Address requesterAddress) {
-        Message message = new CacheParamsRequestMessage(dbServiceAddress, address, requesterAddress);
-        clientChannel.send(message);
+        AdminPageDataWebSocket ds = innerReceivers.get(requesterAddress);
+        if (ds != null) {
+            Address dbServiceAddress = ds.getDbServiceAddress();
+            Message message = new CacheParamsRequestMessage(dbServiceAddress, address, requesterAddress);
+            clientChannel.send(message);
+        }
     }
 
     @Override
@@ -95,8 +97,12 @@ public class WebsocketRequestService implements IMessageReceiver, IRequestServic
 
     @Override
     public void sendCacheParamsChangeRequest(Address requesterAddress, long maximalLifeTime, long maximalIdleTime, int maximalSize) {
-        Message message = new ChangeCacheParamsRequestMessage(dbServiceAddress, address, requesterAddress, maximalLifeTime, maximalIdleTime, maximalSize);
-        clientChannel.send(message);
+        AdminPageDataWebSocket ds = innerReceivers.get(requesterAddress);
+        if (ds != null) {
+            Address dbServiceAddress = ds.getDbServiceAddress();
+            Message message = new ChangeCacheParamsRequestMessage(dbServiceAddress, address, requesterAddress, maximalLifeTime, maximalIdleTime, maximalSize);
+            clientChannel.send(message);
+        }
     }
 
 }
